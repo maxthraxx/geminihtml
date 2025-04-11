@@ -84,7 +84,23 @@
             padding-bottom: 5px;
             border-bottom: 1px solid var(--border-color);
         }
-        .theme-switcher { cursor: pointer; font-size: 1.5em; }
+        .theme-switcher {
+            cursor: pointer;
+            font-size: 1em; /* Adjusted size for text */
+            font-weight: 500; /* Optional: make it slightly bold */
+            padding: 3px 8px; /* Optional: add some padding */
+            border: 1px solid var(--border-color); /* Optional: add a border */
+            border-radius: 6px; /* Optional: round corners */
+            color: var(--text-color);
+            background-color: transparent; /* Start transparent */
+            transition: color var(--transition-speed), border-color var(--transition-speed), background-color var(--transition-speed); /* Add transitions */
+            user-select: none; /* Prevent text selection */
+        }
+        /* Optional: Add hover effect */
+        .theme-switcher:hover {
+            background-color: var(--code-bg);
+            border-color: var(--secondary-color);
+        }
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--secondary-color); transition: color var(--transition-speed); }
         .input-group input[type="text"], .input-group input[type="password"], .input-group input[type="number"], .input-group textarea, .input-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--input-border); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color); transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed); }
@@ -223,7 +239,7 @@
             margin: 0.8em 0;
             transition: background-color var(--transition-speed);
             position: relative;
-            padding-top: 30px;
+            padding-top: 30px; /* Space for copy button */
         }
         .model-bubble pre code { background-color: transparent; padding: 0; font-family: 'Courier New', Courier, monospace; font-size: 0.85em; color: inherit; white-space: pre; }
 
@@ -240,7 +256,7 @@
             border-radius: 4px;
             cursor: pointer;
             opacity: 0.6;
-            transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+            transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             z-index: 1;
         }
         .model-bubble pre:hover .copy-code-button { opacity: 1; }
@@ -249,6 +265,7 @@
              background-color: var(--copy-button-copied-bg);
              color: var(--copy-button-copied-text);
              opacity: 1;
+             border-color: transparent; /* Hide border when copied */
         }
 
         /* --- Config & Footer --- */
@@ -281,7 +298,8 @@
     <div class="container">
         <header>
             <h1>Gemini HTML</h1>
-            <div class="theme-switcher" id="themeSwitcher" title="Toggle Theme">🌙</div>
+            <!-- Updated to use text, default shows 'Dark' -->
+            <div class="theme-switcher" id="themeSwitcher" title="Switch to Dark Mode">Dark</div>
         </header>
 
         <div class="input-group">
@@ -407,7 +425,7 @@
         function initialize() {
             loadApiKey();
             setupEventListeners();
-            initializeTheme();
+            initializeTheme(); // Sets initial text/title based on saved theme
             configureMarked();
             if (apiKeyInput.value.trim()) {
                 fetchModels();
@@ -421,9 +439,6 @@
              marked.setOptions({
                 highlight: function(code, lang) {
                     const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-                    if (block?.classList?.contains('hljs') || /<span class="hljs-\w+">/.test(code)) {
-                         return code;
-                    }
                     try {
                         const result = hljs.highlight(code, { language, ignoreIllegals: true });
                         return result.value;
@@ -434,7 +449,8 @@
                              return result.value;
                         } catch (e2) {
                             console.error("Highlight.js auto-detection failed:", e2);
-                             return code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                             // Basic escaping as a last resort
+                             return code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
                         }
                     }
                 },
@@ -463,6 +479,13 @@
             // NEW: File Upload Listeners
             uploadButton.addEventListener('click', () => fileInput.click()); // Trigger hidden input
             fileInput.addEventListener('change', handleFileSelection);
+
+             // Add listener for copy buttons (using event delegation on chatContainer)
+             chatContainer.addEventListener('click', function(event) {
+                 if (event.target.classList.contains('copy-code-button')) {
+                     handleCopyCodeClick(event.target);
+                 }
+             });
         }
 
         // --- Model Fetching and Handling ---
@@ -509,7 +532,7 @@
                 // Keep filtering for generateContent, sorting by display name
                 const compatibleModels = (data.models || [])
                     .filter(model => model.name.startsWith('models/') && model.supportedGenerationMethods?.includes('generateContent'))
-                    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+                    .sort((a, b) => (a.displayName || a.name).localeCompare(b.displayName || b.name)); // Sort robustly
 
                 if (compatibleModels.length > 0) {
                     updateModelDropdown(compatibleModels);
@@ -538,7 +561,7 @@
             placeholderOption.value = "";
             placeholderOption.textContent = placeholderText;
             placeholderOption.disabled = true;
-            placeholderOption.selected = true;
+            placeholderOption.selected = !models.some(m => `models/${PREFERRED_MODEL}` === m.name); // Select placeholder if preferred not found
             modelSelect.appendChild(placeholderOption);
 
             let preferredModelExists = false;
@@ -552,24 +575,20 @@
                  if (model.name.includes('gemini-1.5-pro')) { // Or check model capabilities if available
                      displayName += ' (Multimodal)';
                  }
+                 // Prioritize newer models visually slightly
+                 if (model.name.includes('1.5')) displayName += '*';
+                 if (model.name.includes('latest')) displayName += ' (latest)';
+
                 option.textContent = displayName;
                 modelSelect.appendChild(option);
                 if (model.name === preferredValue) {
+                    option.selected = true; // Select the preferred model
                     preferredModelExists = true;
                 }
             });
 
             modelSelect.disabled = models.length === 0;
-
-            if (models.length > 0) {
-                if (preferredModelExists) {
-                    modelSelect.value = preferredValue;
-                } else {
-                    placeholderOption.selected = true;
-                }
-            }
-
-            handleModelSelectionChange();
+            handleModelSelectionChange(); // Update footer immediately
         }
 
         function handleModelSelectionChange() {
@@ -578,6 +597,10 @@
                  currentModelNameSpan.textContent = selectedOption.text;
              } else {
                  currentModelNameSpan.textContent = 'N/A';
+             }
+             // Warn if selecting non-multimodal model when a file might be needed
+             if (selectedOption && selectedOption.value && !selectedOption.text.includes('(Multimodal)') && !selectedOption.text.includes('1.5 Pro')) {
+                 console.warn("Selected model may not support file uploads effectively.");
              }
          }
 
@@ -601,6 +624,7 @@
                     localStorage.setItem('rememberGeminiApiKey', 'true');
                     console.info("API Key saved to Local Storage.");
                 } else {
+                    // Don't save an empty key, uncheck if user clears field while checked
                     rememberApiKeyCheckbox.checked = false;
                     localStorage.removeItem('geminiApiKey');
                     localStorage.removeItem('rememberGeminiApiKey');
@@ -614,11 +638,12 @@
 
         let apiKeyDebounceTimer;
         function handleApiKeyInput() {
-             handleRememberKeyChange();
+             handleRememberKeyChange(); // Update storage immediately on input if checked
              clearTimeout(apiKeyDebounceTimer);
              apiKeyDebounceTimer = setTimeout(() => {
                  const currentKey = apiKeyInput.value.trim();
                  if (currentKey) {
+                    // Fetch models only if needed (key changed AND (no models loaded OR dropdown disabled))
                      if (!modelsLoaded || modelSelect.disabled) {
                         fetchModels();
                      }
@@ -626,26 +651,31 @@
                      updateModelDropdown([], "-- Enter API Key to Load Models --");
                      modelsLoaded = false;
                      showStatus("");
+                     chatHistory = []; // Clear chat if API key is removed
+                     renderChatHistory();
                  }
-             }, 500);
+             }, 500); // Debounce API calls
          }
 
         // --- Theme Handling ---
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme);
-             updateSelectArrowColor();
+             updateSelectArrowColor(); // Needs to run after initial theme set
         }
 
         function setTheme(theme) {
             const html = document.documentElement;
             html.setAttribute('data-theme', theme);
-            themeSwitcher.textContent = theme === 'dark' ? '☀️' : '🌙';
+            // --- UPDATED --- Set text instead of emoji
+            themeSwitcher.textContent = theme === 'dark' ? 'Light' : 'Dark';
+            themeSwitcher.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'; // Title based on action
+            // --- END UPDATE ---
             const lightThemeUrl = getComputedStyle(html).getPropertyValue('--highlight-style-light').trim().replace(/['"]/g,'');
             const darkThemeUrl = getComputedStyle(html).getPropertyValue('--highlight-style-dark').trim().replace(/['"]/g,'');
             highlightThemeLink.href = theme === 'dark' ? darkThemeUrl : lightThemeUrl;
             localStorage.setItem('theme', theme);
-             updateSelectArrowColor();
+             updateSelectArrowColor(); // Update arrow on theme change
         }
 
         function toggleTheme() {
@@ -654,47 +684,75 @@
             setTheme(newTheme);
         }
 
+        // Debounce resize events for performance
+        let resizeDebounceTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeDebounceTimer);
+            resizeDebounceTimer = setTimeout(updateSelectArrowColor, 100);
+        });
+
+
         function updateSelectArrowColor() {
-            const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
-            const colorHex = secondaryColor.substring(1);
-             const svgArrow = `data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23${encodeURIComponent(colorHex)}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E`;
-             modelSelect.style.backgroundImage = svgArrow;
+             // Ensure this runs after styles are potentially updated by setTheme
+             requestAnimationFrame(() => {
+                 const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
+                 // Ensure color is a valid hex for URI encoding
+                 let colorHex = '6c757d'; // Default light theme secondary color hex
+                 if (secondaryColor.startsWith('#')) {
+                    colorHex = secondaryColor.substring(1);
+                 } else {
+                    // Attempt to handle rgb/rgba - simplistic, assumes no transparency for the arrow needed
+                    const rgbMatch = secondaryColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                    if (rgbMatch) {
+                        colorHex = (+rgbMatch[1]).toString(16).padStart(2, '0') +
+                                   (+rgbMatch[2]).toString(16).padStart(2, '0') +
+                                   (+rgbMatch[3]).toString(16).padStart(2, '0');
+                    } else {
+                        console.warn("Could not parse secondary color for arrow:", secondaryColor);
+                    }
+                 }
+                 // Use encodeURIComponent for robustness
+                 const svgArrow = `url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23${encodeURIComponent(colorHex)}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E')`;
+                 modelSelect.style.backgroundImage = svgArrow;
+            });
         }
 
-        // --- File Handling --- NEW SECTION ---
+        // --- File Handling ---
         function handleFileSelection(event) {
             const file = event.target.files[0];
             if (file) {
-                // Basic size check (e.g., ~20MB limit for inline data, API might have lower limits)
-                // Note: Base64 increases size by ~33%
-                const maxSize = 20 * 1024 * 1024; // 20 MB limit (adjust as needed)
+                const maxSizeMb = 50;
+                const maxSize = maxSizeMb * 1024 * 1024;
                 if (file.size > maxSize) {
-                    showStatus(`Error: File size (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds the limit (~${maxSize / 1024 / 1024}MB).`, true);
+                    showStatus(`Error: File size (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds example limit (${maxSizeMb}MB). Actual API limits apply.`, true);
                     resetFileInput();
                     return;
                 }
+                 const allowedTypes = /^image\/|^application\/pdf$|^audio\/|^video\/|^text\//;
+                 if (!allowedTypes.test(file.type)) {
+                    console.warn(`Warning: File type "${file.type}" may not be optimally processed by the model. Allowed types check: ${allowedTypes}`);
+                 }
 
                 fileNameDisplay.textContent = `Reading: ${file.name}...`;
-                showStatus("Reading file...", false); // Show reading status
+                showStatus("Reading file...", false);
+                uploadButton.disabled = true;
 
                 const reader = new FileReader();
-
                 reader.onloadend = function() {
+                     uploadButton.disabled = false;
                     if (reader.readyState === FileReader.DONE) {
                         try {
                              const dataUrl = reader.result;
-                             // Extract base64 data (remove 'data:mime/type;base64,')
-                             const base64Data = dataUrl.substring(dataUrl.indexOf(',') + 1);
-                             const mimeType = dataUrl.substring(dataUrl.indexOf(':') + 1, dataUrl.indexOf(';'));
+                             const commaIndex = dataUrl.indexOf(',');
+                             if (commaIndex === -1) throw new Error("Invalid Data URL format");
+                             const base64Data = dataUrl.substring(commaIndex + 1);
+                             const mimeMatch = dataUrl.substring(0, commaIndex).match(/:(.*?);/);
+                             const mimeType = mimeMatch ? mimeMatch[1] : file.type || 'application/octet-stream';
 
-                             selectedFile = {
-                                 name: file.name,
-                                 mimeType: mimeType || 'application/octet-stream', // Default if not detected
-                                 data: base64Data
-                             };
+                             selectedFile = { name: file.name, mimeType: mimeType, data: base64Data };
                              console.log(`File selected: ${selectedFile.name}, Type: ${selectedFile.mimeType}, Size: ${Math.round(base64Data.length * 3 / 4 / 1024)} KB`);
                              fileNameDisplay.textContent = `Selected: ${file.name}`;
-                             showStatus("File ready to send.", false); // Clear reading status
+                             showStatus("File ready to send.", false);
                          } catch (e) {
                              console.error("Error processing file reader result:", e);
                              showStatus("Error: Could not process file data.", true);
@@ -702,25 +760,21 @@
                          }
                     }
                 };
-
                 reader.onerror = function() {
                     console.error("FileReader Error:", reader.error);
-                    showStatus(`Error reading file: ${reader.error.message}`, true);
+                    showStatus(`Error reading file: ${reader.error.message || 'Unknown FileReader Error'}`, true);
                     resetFileInput();
+                    uploadButton.disabled = false;
                 };
-
-                reader.readAsDataURL(file); // Read as Data URL to get base64
-
+                reader.readAsDataURL(file);
             } else {
-                // No file selected or selection cancelled
-                resetFileInput(); // Clear selection state
-                showStatus(""); // Clear any previous file status
+                resetFileInput();
             }
         }
 
         function resetFileInput() {
             selectedFile = null;
-            fileInput.value = ''; // Important to allow re-selecting the same file
+            fileInput.value = '';
             fileNameDisplay.textContent = 'No file selected.';
         }
 
@@ -740,61 +794,50 @@
             }
             if (!modelsLoaded || !selectedModelIdentifier) {
                 showStatus("Error: Please select a valid model.", true);
-                if (!modelsLoaded && apiKey) await fetchModels(); modelSelect.focus(); return;
+                if (!modelsLoaded && apiKey) await fetchModels();
+                modelSelect.focus(); return;
             }
-            // Allow sending if *either* text or a file is present
             if (!promptText && !selectedFile) {
                 showStatus("Error: Message or file upload is required.", true);
                 promptInput.focus(); return;
             }
-            // Check if model likely supports multimodal (simple check)
-             if (selectedFile && !selectedModelIdentifier.includes('gemini-1.5-pro')) {
-                 showStatus("Warning: Selected model might not support file uploads. Use Gemini 1.5 Pro for best results.", false, true);
-                 // Allow sending anyway, but warn the user.
+             const selectedOptionText = modelSelect.options[modelSelect.selectedIndex]?.text || '';
+             if (selectedFile && !selectedOptionText.includes('(Multimodal)') && !selectedOptionText.includes('1.5 Pro')) {
+                 showStatus("Warning: Selected model likely does not support file uploads. Use Gemini 1.5 Pro or a multimodal model.", false, true);
              }
 
-            handleRememberKeyChange(); // Save key if checked
-
-            // --- Construct User Message Parts ---
+            // Construct User Message Parts
             const userParts = [];
-            // Add text part if it exists
-            if (promptText) {
-                userParts.push({ text: promptText });
-            }
-            // Add file part if it exists
-            let fileInfoForHistory = null; // Store file info for display in user bubble
+            if (promptText) userParts.push({ text: promptText });
+            let fileInfoForHistory = null;
             if (selectedFile) {
-                userParts.push({
-                    inlineData: {
-                        mimeType: selectedFile.mimeType,
-                        data: selectedFile.data
-                    }
-                });
-                fileInfoForHistory = { name: selectedFile.name, type: selectedFile.mimeType }; // Keep info
-                console.log(`Sending file: ${selectedFile.name} (${selectedFile.mimeType})`);
-                // Clear file state *after* adding to parts, before API call
-                resetFileInput(); // Reset input and state variable
+                userParts.push({ inlineData: { mimeType: selectedFile.mimeType, data: selectedFile.data } });
+                fileInfoForHistory = { name: selectedFile.name, type: selectedFile.mimeType };
+                console.log(`Preparing to send file: ${selectedFile.name} (${selectedFile.mimeType})`);
+                resetFileInput(); // Reset after adding to parts
             }
 
-            const userMessage = { role: 'user', parts: userParts, fileInfo: fileInfoForHistory }; // Add fileInfo for rendering
+            const userMessage = { role: 'user', parts: userParts, fileInfo: fileInfoForHistory };
             chatHistory.push(userMessage);
             renderChatHistory();
             scrollToBottom();
-            promptInput.value = ''; // Clear text prompt input
+            promptInput.value = '';
             showLoading(true);
 
+            // Prepare API request body
+            const contentsForApi = chatHistory.map(msg => {
+                 const { fileInfo, parts, ...apiMsg } = msg;
+                 return { ...apiMsg, parts: Array.isArray(parts) ? parts : [] };
+            });
             const apiUrl = `${API_ENDPOINT_BASE}${selectedModelIdentifier}:generateContent?key=${apiKey}`;
             const requestBody = {
-                 contents: chatHistory.map(msg => {
-                    // Remove the temporary 'fileInfo' before sending to API
-                    const { fileInfo, ...apiMsg } = msg;
-                    return apiMsg;
-                 }),
+                 contents: contentsForApi,
                  generationConfig: { temperature, maxOutputTokens: maxTokens, topP, topK }
+                 // safetySettings: [...] // Consider adding safety settings
             };
 
             console.log("Sending API Request to:", apiUrl);
-            console.log("Request Body:", JSON.stringify(requestBody, null, 2)); // Note: Base64 data will be long
+            console.log("Request Body Structure:", JSON.stringify(requestBody, (key, value) => key === 'data' ? '...' : value, 2));
 
             try {
                 const response = await fetch(apiUrl, {
@@ -803,298 +846,257 @@
                     body: JSON.stringify(requestBody),
                 });
 
-                // --- Enhanced Error Handling ---
+                // Enhanced Error Handling
                 if (!response.ok) {
                     let errorText = `API Error: ${response.status} ${response.statusText}`;
                     let errorData = null;
+                    let detailedMessage = 'No additional details provided by API.';
                     try {
                         errorData = await response.json();
                         console.error("API Error Response Body:", errorData);
-                        errorText += ` - ${errorData?.error?.message || 'No additional details provided by API.'}`;
-                         if (errorData?.error?.details) {
-                             errorText += ` Details: ${JSON.stringify(errorData.error.details)}`;
-                         }
+                         if (errorData?.error?.message) detailedMessage = errorData.error.message;
+                         if (errorData?.error?.details) detailedMessage += ` Details: ${JSON.stringify(errorData.error.details)}`;
+                         // Specific Error Parsing
                          if (response.status === 400) {
-                             if (errorData?.error?.message.includes("API key not valid")) {
-                                 errorText = "API Key not valid. Please check your key and ensure it's enabled.";
-                             } else if (errorData?.error?.message.includes("User location is not supported")) {
-                                 errorText = "Error: Service is not available in your location.";
-                             } else if (errorData?.error?.message.includes("must have")) { // Generic check for schema issues
-                                 errorText = `API Error: Invalid request structure. ${errorData?.error?.message}`;
-                             }
-                         } else if (response.status === 403 && errorData?.error?.message.includes("permission")) {
-                             errorText = "Permission Denied. The API key may lack permissions for the selected model or service.";
-                         } else if (response.status === 429) {
-                             errorText = "Rate Limit Exceeded. Please wait and try again later.";
-                         } else if (response.status >= 500) {
-                             errorText = `Server Error (${response.status}). Google AI might be temporarily unavailable. Please try again later.`;
-                         }
-
+                             if (detailedMessage.includes("API key not valid")) errorText = "API Key not valid. Please check your key and ensure it's enabled.";
+                             else if (detailedMessage.includes("User location is not supported")) errorText = "Error: Service is not available in your location.";
+                             else if (detailedMessage.includes("must have") || detailedMessage.includes("invalid format")) errorText = `API Error: Invalid request structure. ${detailedMessage}`;
+                             else if (detailedMessage.includes("request payload size exceeds the limit")) errorText = `API Error: Request size limit exceeded. Try a smaller file or shorter prompt. ${detailedMessage}`;
+                             else errorText = `API Error (400): ${detailedMessage}`;
+                         } else if (response.status === 403 && detailedMessage.includes("permission")) errorText = "Permission Denied. The API key may lack permissions for the selected model or service.";
+                         else if (response.status === 429) errorText = "Rate Limit Exceeded. Please wait and try again later.";
+                         else if (response.status >= 500) errorText = `Server Error (${response.status}). Google AI might be temporarily unavailable. Please try again later. ${detailedMessage}`;
+                         else errorText = `API Error (${response.status}): ${detailedMessage}`;
                     } catch (e) {
-                        try {
-                            const rawText = await response.text();
-                            errorText += ` - Response: ${rawText.substring(0, 200)}${rawText.length > 200 ? '...' : ''}`;
-                        } catch (e2) { /* ignore */ }
+                         try { const rawText = await response.text(); errorText += ` - Server Response: ${rawText.substring(0, 300)}${rawText.length > 300 ? '...' : ''}`; } catch (e2) {}
                     }
-                    chatHistory.pop(); // Remove the user message that failed
+                    chatHistory.pop(); // Remove failed user message
                     renderChatHistory();
                     throw new Error(errorText);
                 }
 
-                // --- Process Successful Response ---
+                // Process Successful Response
                 const data = await response.json();
                 console.log("API Response Data:", JSON.stringify(data, null, 2));
-
                 let generatedText = "";
                 let finishReason = "UNKNOWN";
                 let safetyFeedback = null;
                 let tokenUsage = data.usageMetadata;
                 let modelMessage = null;
+                let blockReason = null;
 
                 if (data.candidates && data.candidates.length > 0) {
-                    const candidate = data.candidates[0];
-                    finishReason = candidate.finishReason || "UNKNOWN";
-
-                    if (candidate.content?.parts?.length > 0 && candidate.content.role === 'model') {
-                        // If multiple parts, concatenate text for now. Better handling might be needed for mixed content responses.
-                        generatedText = candidate.content.parts.map(part => part.text || '').join('\n');
-                        modelMessage = { role: 'model', parts: [{ text: generatedText }] }; // Simplified structure for history
-                    } else {
-                         console.warn("Candidate received, but no valid model content/parts found:", candidate);
-                         finishReason = candidate.finishReason || "MISSING_CONTENT";
-                    }
-                    if (candidate.safetyRatings) {
-                        safetyFeedback = candidate.safetyRatings;
-                    }
-                }
-
-                if (data.promptFeedback) {
-                    console.warn("Prompt Feedback Received:", data.promptFeedback);
-                    if (data.promptFeedback.blockReason && finishReason === "UNKNOWN") {
-                        finishReason = `PROMPT_BLOCKED (${data.promptFeedback.blockReason})`;
-                    }
-                    if (!safetyFeedback && data.promptFeedback.safetyRatings) {
-                        safetyFeedback = data.promptFeedback.safetyRatings;
-                    }
-                     if (data.promptFeedback.blockReason && !data.candidates) {
-                        finishReason = `PROMPT_BLOCKED (${data.promptFeedback.blockReason})`;
-                        chatHistory.pop(); // Remove blocked user message
+                     const candidate = data.candidates[0];
+                     finishReason = candidate.finishReason || "UNKNOWN";
+                     if (candidate.content?.parts?.length > 0 && candidate.content.role === 'model') {
+                         modelMessage = { role: 'model', parts: candidate.content.parts };
+                         generatedText = candidate.content.parts.map(part => part.text || '').join('');
+                     } else if (finishReason === 'STOP' || finishReason === 'MAX_TOKENS') {
+                         generatedText = `[Model finished (${finishReason}) but returned no text content]`;
+                         modelMessage = { role: 'model', parts: [{ text: generatedText }] };
                      }
-                }
+                     if (candidate.safetyRatings) safetyFeedback = candidate.safetyRatings;
+                 }
 
-                console.log(`Finish Reason: ${finishReason}`);
-                if (tokenUsage) {
-                    console.log(`Token Usage: ${JSON.stringify(tokenUsage)}`);
-                }
+                 if (data.promptFeedback?.blockReason) {
+                    blockReason = data.promptFeedback.blockReason;
+                    finishReason = `PROMPT_BLOCKED (${blockReason})`;
+                    if (!safetyFeedback && data.promptFeedback.safetyRatings) safetyFeedback = data.promptFeedback.safetyRatings;
+                    chatHistory.pop(); // Remove blocked user message
+                 }
 
-                // --- Display Logic ---
-                if (modelMessage) {
-                    chatHistory.push(modelMessage);
-                    renderChatHistory();
-                    scrollToBottom();
-                    let statusMessage = `Response received. Finish Reason: ${finishReason}.`;
-                    if (tokenUsage) {
-                         statusMessage += ` Tokens: ${tokenUsage.totalTokenCount || 'N/A'} total.`;
-                    }
-                    if (finishReason === 'MAX_TOKENS') {
-                        showStatus(`${statusMessage} (Warning: Output truncated)`, false, true);
-                    } else if (['SAFETY', 'RECITATION', 'OTHER'].includes(finishReason) || finishReason.startsWith('PROMPT_BLOCKED')) {
-                         showStatus(`${statusMessage} (Warning: ${finishReason})`, false, true);
-                    } else if (finishReason !== 'STOP' && finishReason !== 'UNKNOWN') {
-                         showStatus(`${statusMessage}`, false, false);
-                    } else if (finishReason === 'STOP') {
-                         showStatus(statusMessage, false, false);
-                    } else {
-                        showStatus(""); // Clear if UNKNOWN but text received
-                    }
-                } else {
-                    let errorMessage = `No content received. Finish Reason: ${finishReason}.`;
-                     if (finishReason.startsWith('PROMPT_BLOCKED')) {
-                         errorMessage = `Your message/file was blocked. Reason: ${data.promptFeedback?.blockReason || 'Safety Filter'}.`;
-                         renderChatHistory(); // Re-render (user msg was popped)
-                     } else if (finishReason === 'SAFETY') {
-                         errorMessage = `Response blocked for safety. Reason: ${finishReason}.`;
-                     } else if (finishReason === 'RECITATION') {
-                         errorMessage = `Response blocked due to potential recitation.`;
-                     } else if (finishReason === 'MISSING_CONTENT') {
-                         errorMessage = `Model returned a response structure without content. Finish Reason: ${finishReason}.`;
-                     } else {
-                         console.error("No valid model message or specific block reason found.", data);
-                         errorMessage = `Received empty or invalid response structure from API. Finish Reason: ${finishReason}. Check console.`;
-                     }
-                    showStatus(errorMessage, true);
+                 console.log(`Effective Finish Reason: ${finishReason}`);
+                 if (tokenUsage) console.log(`Token Usage: ${JSON.stringify(tokenUsage)}`);
+
+                 // Display Logic
+                 if (modelMessage && finishReason !== 'PROMPT_BLOCKED') {
+                     chatHistory.push(modelMessage);
                      renderChatHistory();
-                }
+                     scrollToBottom();
+                     let statusMessage = `Response received. Finish: ${finishReason}.`;
+                     if (tokenUsage) statusMessage += ` Tokens: ${tokenUsage.promptTokenCount||'?'} prompt, ${tokenUsage.candidatesTokenCount||'?'} response, ${tokenUsage.totalTokenCount||'?'} total.`;
+                     let isWarning = finishReason === 'MAX_TOKENS' || ['SAFETY', 'RECITATION', 'OTHER', 'UNKNOWN'].includes(finishReason);
+                     let isError = false; // None currently treated as hard error here
+                     showStatus(statusMessage, isError, isWarning);
+                 } else {
+                     let errorMessage = `No valid response received. Finish Reason: ${finishReason}.`;
+                      if (finishReason.startsWith('PROMPT_BLOCKED')) errorMessage = `Your message/file was blocked by the API. Reason: ${blockReason || 'Safety Filter/Other'}.`;
+                      else if (finishReason === 'SAFETY' && !modelMessage) errorMessage = `Model response blocked for safety. Reason: ${finishReason}.`;
+                      else if (finishReason === 'RECITATION' && !modelMessage) errorMessage = `Model response blocked due to potential recitation.`;
+                      else errorMessage = `Received empty or invalid response structure. Finish Reason: ${finishReason}. Check console.`;
+                     showStatus(errorMessage, true);
+                     renderChatHistory();
+                 }
 
             } catch (error) {
                 console.error("API Call Failed:", error);
-                 showStatus(`Error: ${error.message}`, true);
-                 renderChatHistory(); // Ensure UI reflects accurate history (e.g., popped user message)
+                 showStatus(`Error: ${error.message || 'An unknown network or API error occurred.'}`, true);
+                 renderChatHistory();
             } finally {
                 showLoading(false);
                 promptInput.focus();
-                // Ensure file input is reset even if API call failed after selection
-                if (selectedFile) {
+                if (selectedFile) { // Defensive check
+                    console.warn("Resetting file input in finally block.");
                     resetFileInput();
                 }
             }
         }
-
 
         // --- UI Update Functions ---
         function showLoading(isLoading) {
              const currentStatusText = statusDiv.querySelector('span')?.textContent || '';
              const isError = statusDiv.classList.contains('error');
              const isWarning = statusDiv.classList.contains('warning');
-             const isProcessing = currentStatusText === 'Processing request...' || currentStatusText === 'Reading file...';
+             const isLoadingMessage = /Processing|Loading|Reading/.test(currentStatusText); // Check for loading words
 
              if (isLoading) {
-                 statusDiv.innerHTML = `<div class="loader"></div><span>Processing request...</span>`;
-                 if (isError) statusDiv.classList.add('error');
-                 if (isWarning) statusDiv.classList.add('warning');
+                 if (!isLoadingMessage) {
+                    statusDiv.innerHTML = `<div class="loader"></div><span>Processing request...</span>`;
+                    if (isError) statusDiv.classList.add('error');
+                    if (isWarning) statusDiv.classList.add('warning');
+                 } else if (!statusDiv.querySelector('.loader')) {
+                     statusDiv.insertAdjacentHTML('afterbegin', '<div class="loader"></div>');
+                 }
                  sendButton.disabled = true;
                  promptInput.disabled = true;
-                 uploadButton.disabled = true; // Disable upload during processing
+                 uploadButton.disabled = true;
              } else {
                  const loader = statusDiv.querySelector('.loader');
                  if (loader) loader.remove();
-
                  const statusSpan = statusDiv.querySelector('span');
-                 // Clear "Processing..." or "Reading..." text only if no other status message was set *after* loading started.
-                 if (statusSpan && isProcessing) {
-                     statusDiv.innerHTML = ''; // Clear the loading/reading message entirely
-                 } else if (statusSpan && !isProcessing) {
-                     // Keep the status message that was set during loading (e.g., response received)
-                 } else if (!statusSpan) {
-                     statusDiv.innerHTML = ''; // If no span remains, clear
+                 if (statusSpan && isLoadingMessage) {
+                    const newStatus = statusSpan.textContent;
+                     if (/Processing|Loading|Reading/.test(newStatus)) { // If it's still a loading message
+                        statusDiv.innerHTML = ''; // Clear it
+                     }
                  }
-
-                 // Re-enable based on whether an API key and models are ready
                  const apiKeyPresent = apiKeyInput.value.trim().length > 0;
-                 const modelSelected = modelSelect.value.length > 0;
+                 const modelSelected = modelSelect.value && modelSelect.value.length > 0;
                  sendButton.disabled = !(apiKeyPresent && modelSelected);
                  promptInput.disabled = false;
-                 uploadButton.disabled = false; // Re-enable upload button
+                 uploadButton.disabled = (fileNameDisplay.textContent.startsWith('Reading:'));
              }
          }
 
-
         function showStatus(message, isError = false, isWarning = false) {
-             // Preserve loader if already showing and not explicitly clearing message
              const loaderElement = statusDiv.querySelector('.loader');
              const loaderHtml = loaderElement ? loaderElement.outerHTML : '';
-
-             statusDiv.innerHTML = `${loaderHtml}<span>${message}</span>`;
-             statusDiv.classList.toggle('error', isError);
-             statusDiv.classList.toggle('warning', !isError && isWarning);
+             statusDiv.classList.remove('error', 'warning');
+             statusDiv.innerHTML = `${loaderHtml}<span>${escapeHtml(message)}</span>`; // Escape status message
+             if (isError) statusDiv.classList.add('error');
+             else if (isWarning) statusDiv.classList.add('warning');
          }
 
-        function renderChatHistory() {
+         function renderChatHistory() {
             chatContainer.innerHTML = '';
-
             if (chatHistory.length === 0) {
                 chatContainer.innerHTML = '<div class="chat-placeholder">Conversation will appear here...</div>';
                 return;
             }
 
             chatHistory.forEach(message => {
-                if (!message || !message.role || !message.parts) { // Parts can be empty for model response sometimes
-                    console.warn("Skipping invalid message in chat history:", message);
-                    return;
-                }
+                 if (!message || !message.role || !message.parts) {
+                     console.warn("Skipping rendering invalid message:", message);
+                     return;
+                 }
+                 const bubble = document.createElement('div');
+                 bubble.classList.add('chat-bubble');
 
-                const bubble = document.createElement('div');
-                bubble.classList.add('chat-bubble');
+                 if (message.role === 'user') {
+                     bubble.classList.add('user-bubble');
+                     let contentHtml = '';
+                     const textPart = message.parts.find(p => p.text);
+                     if (textPart && textPart.text.trim()) {
+                         contentHtml += escapeHtml(textPart.text); // Directly set escaped text
+                     }
+                     if (message.fileInfo) {
+                         bubble.classList.add('has-file');
+                         const safeName = escapeHtml(message.fileInfo.name || 'Unknown File');
+                         const safeType = escapeHtml(message.fileInfo.type || 'Unknown Type');
+                         const fileInfoHtml = `<div class="file-info">📎 File Uploaded: ${safeName} (${safeType})</div>`;
+                         contentHtml = contentHtml ? contentHtml + fileInfoHtml : fileInfoHtml;
+                     }
+                     bubble.innerHTML = contentHtml || "[Empty User Message]";
 
-                if (message.role === 'user') {
-                    bubble.classList.add('user-bubble');
-                    // Combine text and file info for display
-                    let content = '';
-                    const textPart = message.parts.find(p => p.text);
-                    if (textPart && textPart.text.trim()) {
-                        // Use textContent for user text to prevent XSS
-                        const textNode = document.createElement('span');
-                        textNode.textContent = textPart.text;
-                        content += textNode.outerHTML;
-                    }
-
-                    // Display file info if it was attached to this message
-                    if (message.fileInfo) {
-                        bubble.classList.add('has-file');
-                        const fileInfoDiv = document.createElement('div');
-                        fileInfoDiv.className = 'file-info';
-                        // Basic escaping for safety, though filename/type are less risky
-                        const safeName = message.fileInfo.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                        const safeType = message.fileInfo.type.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                        fileInfoDiv.innerHTML = `📎 File Uploaded: ${safeName} (${safeType})`;
-                         // Add spacing if there was also text
-                         if (content) {
-                            content += fileInfoDiv.outerHTML;
-                         } else {
-                            content = fileInfoDiv.outerHTML; // Just show file info if no text
-                         }
-                    }
-
-                    // Set the combined content
-                    bubble.innerHTML = content || "[Empty Message]"; // Fallback
-
-                } else if (message.role === 'model') {
-                    bubble.classList.add('model-bubble');
-                    const messageText = message.parts[0]?.text || "[Empty Response]"; // Get text from first part
-                    try {
-                        const rawHtml = marked.parse(messageText);
-                        bubble.innerHTML = rawHtml;
-
-                        const preBlocks = bubble.querySelectorAll('pre');
-                        preBlocks.forEach(pre => {
-                             const codeElement = pre.querySelector('code');
-                            if (!codeElement) return;
-
-                             const copyButton = document.createElement('button');
-                             copyButton.textContent = 'Copy';
-                             copyButton.className = 'copy-code-button';
-                             copyButton.title = 'Copy code to clipboard';
-                             copyButton.setAttribute('aria-label', 'Copy code block');
-
-                             copyButton.addEventListener('click', (e) => {
-                                 e.stopPropagation();
-                                 const codeToCopy = codeElement.textContent || '';
-                                 navigator.clipboard.writeText(codeToCopy).then(() => {
-                                     copyButton.textContent = 'Copied!';
-                                     copyButton.classList.add('copied');
-                                     setTimeout(() => {
-                                         copyButton.textContent = 'Copy';
-                                         copyButton.classList.remove('copied');
-                                     }, 2000);
-                                 }).catch(err => {
-                                     console.error('Failed to copy code: ', err);
-                                     copyButton.textContent = 'Error';
-                                      setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
-                                 });
+                 } else if (message.role === 'model') {
+                     bubble.classList.add('model-bubble');
+                     const messageText = message.parts.map(part => part.text || '').join('');
+                     try {
+                         const rawHtml = marked.parse(messageText || "[Empty Model Response]");
+                         bubble.innerHTML = rawHtml;
+                         requestAnimationFrame(() => { // Process after render
+                             const preBlocks = bubble.querySelectorAll('pre');
+                             preBlocks.forEach(pre => {
+                                 if (pre.querySelector('.copy-code-button')) return;
+                                 const codeElement = pre.querySelector('code');
+                                 if (!codeElement) return;
+                                 const copyButton = document.createElement('button');
+                                 copyButton.textContent = 'Copy';
+                                 copyButton.className = 'copy-code-button';
+                                 copyButton.title = 'Copy code to clipboard';
+                                 copyButton.setAttribute('aria-label', 'Copy code block');
+                                 pre.appendChild(copyButton);
+                                 if (!codeElement.classList.contains('hljs')) {
+                                     hljs.highlightElement(codeElement);
+                                 }
                              });
-                             pre.appendChild(copyButton);
+                         });
+                     } catch (e) {
+                         console.error("Markdown parsing/rendering error:", e);
+                         bubble.textContent = messageText || "[Error rendering response]"; // Fallback escaped
+                     }
+                 }
+                 chatContainer.appendChild(bubble);
+             });
+         }
 
-                            if (codeElement && !codeElement.classList.contains('hljs')) {
-                                 hljs.highlightElement(codeElement);
-                            }
-                        });
-                    } catch (e) {
-                        console.error("Markdown parsing/rendering error:", e);
-                        bubble.textContent = messageText; // Fallback
-                    }
-                }
-                chatContainer.appendChild(bubble);
-            });
-        }
+        // --- Copy Code Logic ---
+        function handleCopyCodeClick(button) {
+             const pre = button.closest('pre');
+             const code = pre?.querySelector('code');
+             if (!code) return;
+             const codeToCopy = code.textContent || '';
+             navigator.clipboard.writeText(codeToCopy).then(() => {
+                 button.textContent = 'Copied!';
+                 button.classList.add('copied');
+                 button.style.pointerEvents = 'none';
+                 setTimeout(() => {
+                     button.textContent = 'Copy';
+                     button.classList.remove('copied');
+                     button.style.pointerEvents = 'auto';
+                 }, 2000);
+             }).catch(err => {
+                 console.error('Failed to copy code: ', err);
+                 button.textContent = 'Error';
+                 button.style.pointerEvents = 'none';
+                 setTimeout(() => {
+                     button.textContent = 'Copy';
+                     button.style.pointerEvents = 'auto';
+                 }, 2000);
+             });
+         }
+
+         // --- Utility Functions ---
+         function escapeHtml(unsafe) {
+             if (typeof unsafe !== 'string') return '';
+             return unsafe
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#039;");
+         }
 
         function scrollToBottom() {
-            responseArea.scrollTop = responseArea.scrollHeight;
+            requestAnimationFrame(() => {
+                responseArea.scrollTop = responseArea.scrollHeight;
+            });
         }
 
         function clearAll() {
             promptInput.value = '';
             chatHistory = [];
-            resetFileInput(); // NEW: Clear file input as well
+            resetFileInput();
             renderChatHistory();
             showStatus("");
             promptInput.focus();
