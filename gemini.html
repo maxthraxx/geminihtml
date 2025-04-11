@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini API Interface</title>
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="highlight-theme">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <style>
+        /* Basic Reset & Root Variables */
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            --transition-speed: 0.3s ease;
+            /* Light Theme (Default) */
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #007bff;
+            --primary-color-rgb: 0, 123, 255;
+            --secondary-color: #6c757d;
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+            --input-border: #ced4da;
+            --button-bg: #007bff;
+            --button-text: #ffffff;
+            --button-hover-bg: #0056b3;
+            --error-color: #dc3545;
+            --warning-color: #ffc107; /* Added warning color */
+            --code-bg: #e9ecef;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --highlight-style-light: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+            --highlight-style-dark: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+            --highlight-bg: var(--code-bg);
+        }
+
+        html[data-theme='dark'] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --primary-color: #4dabf7;
+            --primary-color-rgb: 77, 171, 247;
+            --secondary-color: #a0a0a0;
+            --card-bg: #2c2c2c;
+            --input-bg: #333;
+            --input-border: #555;
+            --button-bg: #4dabf7;
+            --button-text: #111;
+            --button-hover-bg: #2196f3;
+            --error-color: #f44336;
+            --warning-color: #ffca28; /* Added warning color */
+            --code-bg: #222;
+            --border-color: #444;
+            --shadow-color: rgba(255, 255, 255, 0.1);
+            --highlight-bg: var(--code-bg);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 20px; transition: background-color var(--transition-speed), color var(--transition-speed); display: flex; flex-direction: column; min-height: 100vh; }
+        .container { max-width: 900px; margin: 20px auto; padding: 30px; background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-color); transition: background-color var(--transition-speed), box-shadow var(--transition-speed); flex-grow: 1; display: flex; flex-direction: column; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; transition: border-color var(--transition-speed); }
+        h1 { color: var(--primary-color); font-size: 1.8em; transition: color var(--transition-speed); }
+        .theme-switcher { cursor: pointer; font-size: 1.5em; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--secondary-color); transition: color var(--transition-speed); }
+        .input-group input[type="text"], .input-group input[type="password"], .input-group input[type="number"], .input-group textarea, .input-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--input-border); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color); transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed); }
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25); }
+        .input-group select { appearance: none; /* For custom arrow later if needed */ background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23${(getComputedStyle(document.documentElement).getPropertyValue('--secondary-color') || '#6c757d').substring(1)}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 15px center; background-size: .65em auto; padding-right: 40px; /* Make space for arrow */ }
+        .input-group select:disabled { opacity: 0.7; background-color: var(--code-bg); }
+        textarea { resize: vertical; min-height: 120px; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        button { padding: 12px 20px; background-color: var(--button-bg); color: var(--button-text); border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background-color var(--transition-speed), transform 0.1s ease; }
+        button:hover:not(:disabled) { background-color: var(--button-hover-bg); transform: translateY(-1px); }
+        button:active:not(:disabled) { transform: translateY(0px); }
+        button:disabled { background-color: var(--secondary-color); cursor: not-allowed; opacity: 0.7; }
+        #clearButton { background-color: var(--secondary-color); }
+        #clearButton:hover:not(:disabled) { background-color: #5a6268; }
+        #status { margin: 20px 0; font-weight: bold; min-height: 1.6em; display: flex; align-items: center; gap: 10px; transition: color var(--transition-speed); }
+        #status.error { color: var(--error-color); }
+        #status.warning { color: var(--warning-color); } /* Added warning style */
+        .loader { border: 4px solid var(--input-border); border-top: 4px solid var(--primary-color); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .response-area { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; margin-top: 10px; overflow-x: auto; flex-grow: 1; min-height: 150px; transition: background-color var(--transition-speed), border-color var(--transition-speed); }
+        #responseOutput { white-space: pre-wrap; word-wrap: break-word; font-size: 0.95em; }
+        #responseOutput :first-child { margin-top: 0; } /* Remove extra top margin from first element */
+        /* Markdown Styles */
+        #responseOutput h1, #responseOutput h2, #responseOutput h3 { margin-top: 1.2em; margin-bottom: 0.6em; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; transition: border-color var(--transition-speed); }
+        #responseOutput h1 { font-size: 1.6em; } #responseOutput h2 { font-size: 1.4em; } #responseOutput h3 { font-size: 1.2em; }
+        #responseOutput p { margin-bottom: 1em; }
+        #responseOutput ul, #responseOutput ol { margin-left: 25px; margin-bottom: 1em; }
+        #responseOutput li { margin-bottom: 0.4em; }
+        #responseOutput blockquote { border-left: 4px solid var(--primary-color); padding-left: 15px; margin: 1em 0; color: var(--secondary-color); font-style: italic; transition: border-color var(--transition-speed), color var(--transition-speed); }
+        #responseOutput code:not(pre code) { background-color: var(--code-bg); color: var(--text-color); padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; transition: background-color var(--transition-speed), color var(--transition-speed); }
+        #responseOutput pre { background-color: var(--highlight-bg); padding: 15px; border-radius: 6px; overflow-x: auto; margin: 1em 0; transition: background-color var(--transition-speed); }
+        #responseOutput pre code { background-color: transparent; padding: 0; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; color: inherit; white-space: pre; }
+        .api-key-options { display: flex; align-items: center; gap: 10px; margin-top: 5px; font-size: 0.9em; color: var(--secondary-color); }
+        .api-key-options input[type="checkbox"] { margin-right: 5px; }
+        .api-key-warning { font-size: 0.8em; color: #ffc107; margin-top: 5px; }
+        .config-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px; transition: border-color var(--transition-speed); }
+        .config-options .input-group { margin-bottom: 0; }
+        details summary { cursor: pointer; color: var(--primary-color); margin-bottom: 15px; font-weight: 500; transition: color var(--transition-speed); }
+        footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--border-color); color: var(--secondary-color); font-size: 0.9em; transition: border-color var(--transition-speed), color var(--transition-speed); }
+        footer a { color: var(--primary-color); text-decoration: none; transition: color var(--transition-speed); }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Gemini API Interface</h1>
+            <div class="theme-switcher" id="themeSwitcher" title="Toggle Theme">🌙</div>
+        </header>
+
+        <div class="input-group">
+            <label for="apiKey">API Key:</label>
+            <input type="password" id="apiKey" placeholder="Enter your Google AI Studio API Key">
+            <div class="api-key-options">
+                <input type="checkbox" id="rememberApiKey">
+                <label for="rememberApiKey">Remember Key (Uses Local Storage)</label>
+            </div>
+            <div class="api-key-warning">
+                ⚠️ Warning: Storing API keys in browser storage is insecure for shared environments. Use with caution.
+            </div>
+        </div>
+
+        <div class="input-group">
+             <label for="modelSelect">Select Model:</label>
+             <select id="modelSelect" disabled>
+                 <option value="">-- Enter API Key to Load Models --</option>
+             </select>
+        </div>
+
+        <div class="input-group">
+            <label for="prompt">Your Prompt (Ctrl+Enter to send):</label>
+            <textarea id="prompt" rows="6" placeholder="Enter your prompt here. Ask Gemini anything..."></textarea>
+        </div>
+
+        <details>
+            <summary>Configuration Options</summary>
+            <div class="config-options">
+                <div class="input-group">
+                    <label for="temperature">Temperature (0-1):</label>
+                    <input type="number" id="temperature" min="0" max="1" step="0.1" value="0.7" title="Controls randomness. Lower values are more deterministic.">
+                </div>
+                <div class="input-group">
+                    <label for="maxTokens">Max Output Tokens:</label>
+                    <!-- *** MODIFIED: Increased default value *** -->
+                    <input type="number" id="maxTokens" min="1" step="1" value="8192" title="Maximum number of tokens to generate in the response. Default increased.">
+                </div>
+                 <div class="input-group">
+                    <label for="topP">Top P (0-1):</label>
+                    <input type="number" id="topP" min="0" max="1" step="0.01" value="0.95" title="Nucleus sampling parameter.">
+                </div>
+                 <div class="input-group">
+                    <label for="topK">Top K (integer):</label>
+                    <input type="number" id="topK" min="1" step="1" value="40" title="Top-k sampling parameter.">
+                </div>
+            </div>
+        </details>
+
+        <div class="button-group">
+            <button id="sendButton">Send Prompt</button>
+            <button id="clearButton">Clear</button>
+        </div>
+
+        <div id="status"></div>
+
+        <h2>Response:</h2>
+        <div class="response-area">
+            <div id="responseOutput"><span style="color: var(--secondary-color);">Gemini's response will appear here...</span></div>
+        </div>
+
+    </div>
+
+     <footer>
+        Powered by the <a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer">Google Gemini API</a>. Using model: <span id="currentModelName">N/A</span>.
+     </footer>
+
+    <script>
+        // --- DOM Elements ---
+        const apiKeyInput = document.getElementById('apiKey');
+        const rememberApiKeyCheckbox = document.getElementById('rememberApiKey');
+        const modelSelect = document.getElementById('modelSelect');
+        const promptInput = document.getElementById('prompt');
+        const sendButton = document.getElementById('sendButton');
+        const clearButton = document.getElementById('clearButton');
+        const statusDiv = document.getElementById('status');
+        const responseOutputDiv = document.getElementById('responseOutput');
+        const themeSwitcher = document.getElementById('themeSwitcher');
+        const temperatureInput = document.getElementById('temperature');
+        const maxTokensInput = document.getElementById('maxTokens');
+        const topPInput = document.getElementById('topP');
+        const topKInput = document.getElementById('topK');
+        const currentModelNameSpan = document.getElementById('currentModelName');
+        const highlightThemeLink = document.getElementById('highlight-theme');
+
+        // --- Configuration ---
+        const API_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/";
+        const PREFERRED_MODEL = "gemini-1.5-pro-latest"; // Optional: try to pre-select this
+
+        // --- State ---
+        let modelsLoaded = false;
+
+        // --- Initialization ---
+        function initialize() {
+            loadApiKey();
+            setupEventListeners();
+            initializeTheme();
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                    return hljs.highlight(code, { language, ignoreIllegals: true }).value;
+                },
+                gfm: true,
+                breaks: true,
+            });
+            if (apiKeyInput.value) {
+                fetchModels();
+            }
+        }
+
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            sendButton.addEventListener('click', handleSendPrompt);
+            clearButton.addEventListener('click', clearAll);
+            themeSwitcher.addEventListener('click', toggleTheme);
+            rememberApiKeyCheckbox.addEventListener('change', handleRememberKeyChange);
+            apiKeyInput.addEventListener('blur', handleApiKeyBlur);
+            modelSelect.addEventListener('change', handleModelSelectionChange);
+            promptInput.addEventListener('keydown', (event) => {
+                if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSendPrompt();
+                }
+            });
+        }
+
+         // --- Model Fetching and Handling ---
+         async function fetchModels() {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                updateModelDropdown([], "API Key is required to load models.");
+                modelsLoaded = false;
+                return;
+            }
+
+            modelsLoaded = false;
+            modelSelect.disabled = true;
+            showStatus("Loading available models...", false);
+            updateModelDropdown([], "Loading...");
+
+            const listModelsUrl = `${API_ENDPOINT_BASE}models?key=${apiKey}`;
+
+            try {
+                const response = await fetch(listModelsUrl);
+                if (!response.ok) {
+                    let errorText = `Failed to list models: ${response.status} ${response.statusText}`;
+                     try {
+                        const errorData = await response.json();
+                        errorText += ` - ${errorData?.error?.message || 'No details'}`;
+                    } catch(e) { /* ignore */ }
+                    throw new Error(errorText);
+                }
+
+                const data = await response.json();
+                console.log("Available Models:", data);
+
+                const compatibleModels = (data.models || [])
+                    .filter(model => model.supportedGenerationMethods?.includes('generateContent'))
+                    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+                if (compatibleModels.length > 0) {
+                    updateModelDropdown(compatibleModels);
+                    showStatus("Models loaded successfully.", false);
+                    modelsLoaded = true;
+                    modelSelect.disabled = false;
+                    handleModelSelectionChange();
+                 } else {
+                     updateModelDropdown([], "No compatible models found.");
+                     showStatus("No compatible (generateContent) models found for this API key.", true);
+                 }
+
+            } catch (error) {
+                console.error("Fetch Models Error:", error);
+                showStatus(`Error loading models: ${error.message}`, true);
+                updateModelDropdown([], "Error loading models.");
+                 modelsLoaded = false;
+                 modelSelect.disabled = true;
+            }
+        }
+
+        function updateModelDropdown(models, placeholderText = "-- Select a Model --") {
+            modelSelect.innerHTML = '';
+
+            const placeholderOption = document.createElement('option');
+            placeholderOption.value = "";
+            placeholderOption.textContent = placeholderText;
+            placeholderOption.disabled = models.length > 0;
+            modelSelect.appendChild(placeholderOption);
+
+            let preferredModelExists = false;
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.name;
+                option.textContent = model.displayName || model.name.split('/').pop();
+                modelSelect.appendChild(option);
+                if (model.name.endsWith(PREFERRED_MODEL)) {
+                    preferredModelExists = true;
+                }
+            });
+
+            if (preferredModelExists) {
+                const preferredValue = `models/${PREFERRED_MODEL}`;
+                if (modelSelect.querySelector(`option[value="${preferredValue}"]`)) {
+                    modelSelect.value = preferredValue;
+                } else {
+                     console.warn(`Preferred model ${PREFERRED_MODEL} found but full name mismatch? Attempting selection anyway.`);
+                     modelSelect.value = preferredValue;
+                }
+            } else if (models.length > 0) {
+                 // modelSelect.value = models[0].name; // Optionally auto-select first
+            }
+
+            modelSelect.disabled = models.length === 0;
+        }
+
+        function handleModelSelectionChange() {
+             const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+             if (selectedOption && selectedOption.value) {
+                 currentModelNameSpan.textContent = selectedOption.text;
+             } else {
+                 currentModelNameSpan.textContent = 'N/A';
+             }
+         }
+
+
+        // --- API Key Handling ---
+        function loadApiKey() {
+            const rememberedKey = localStorage.getItem('geminiApiKey');
+            const shouldRemember = localStorage.getItem('rememberGeminiApiKey') === 'true';
+
+            rememberApiKeyCheckbox.checked = shouldRemember;
+
+            if (shouldRemember && rememberedKey) {
+                apiKeyInput.value = rememberedKey;
+                console.info("API Key loaded from Local Storage.");
+                // Models will be fetched by initialize()
+            }
+        }
+
+        function handleRememberKeyChange() {
+            if (rememberApiKeyCheckbox.checked) {
+                const key = apiKeyInput.value.trim();
+                if (key) {
+                    localStorage.setItem('geminiApiKey', key);
+                    localStorage.setItem('rememberGeminiApiKey', 'true');
+                    console.info("API Key saved to Local Storage.");
+                } else {
+                    rememberApiKeyCheckbox.checked = false;
+                     localStorage.removeItem('geminiApiKey');
+                     localStorage.removeItem('rememberGeminiApiKey');
+                }
+            } else {
+                localStorage.removeItem('geminiApiKey');
+                localStorage.removeItem('rememberGeminiApiKey');
+                console.info("API Key removed from Local Storage.");
+            }
+        }
+
+         function handleApiKeyBlur() {
+             if (apiKeyInput.value.trim()) {
+                 fetchModels();
+             } else {
+                 updateModelDropdown([], "-- Enter API Key to Load Models --");
+                 modelsLoaded = false;
+                 modelSelect.disabled = true;
+                 currentModelNameSpan.textContent = 'N/A';
+             }
+             handleRememberKeyChange(); // Also handle saving
+         }
+
+        // --- Theme Handling ---
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(theme) {
+            const html = document.documentElement;
+            html.setAttribute('data-theme', theme);
+            themeSwitcher.textContent = theme === 'dark' ? '☀️' : '🌙';
+            const lightThemeUrl = getComputedStyle(html).getPropertyValue('--highlight-style-light').trim().replace(/['"]/g,'');
+            const darkThemeUrl = getComputedStyle(html).getPropertyValue('--highlight-style-dark').trim().replace(/['"]/g,'');
+            highlightThemeLink.href = theme === 'dark' ? darkThemeUrl : lightThemeUrl;
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        // --- Main API Call Logic ---
+        async function handleSendPrompt() {
+            const apiKey = apiKeyInput.value.trim();
+            const selectedModelIdentifier = modelSelect.value;
+            const promptText = promptInput.value.trim();
+            const temperature = parseFloat(temperatureInput.value);
+            const maxTokens = parseInt(maxTokensInput.value, 10);
+            const topP = parseFloat(topPInput.value);
+            const topK = parseInt(topKInput.value, 10);
+
+            if (!apiKey) {
+                showStatus("Error: API Key is missing.", true);
+                apiKeyInput.focus(); return;
+            }
+            if (!modelsLoaded || !selectedModelIdentifier) {
+                showStatus("Error: Please select a model from the dropdown.", true);
+                if (!modelsLoaded) await fetchModels();
+                modelSelect.focus(); return;
+            }
+            if (!promptText) {
+                showStatus("Error: Prompt cannot be empty.", true);
+                promptInput.focus(); return;
+            }
+            if (rememberApiKeyCheckbox.checked) {
+                localStorage.setItem('geminiApiKey', apiKey);
+                localStorage.setItem('rememberGeminiApiKey', 'true');
+            }
+
+            showLoading(true);
+            clearResponse();
+
+            const modelEndpointName = selectedModelIdentifier.startsWith('models/')
+                ? selectedModelIdentifier.substring('models/'.length)
+                : selectedModelIdentifier;
+
+            const apiUrl = `${API_ENDPOINT_BASE}models/${modelEndpointName}:generateContent?key=${apiKey}`;
+            console.log("Using API URL:", apiUrl);
+
+            const requestBody = {
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: {
+                    temperature: temperature,
+                    maxOutputTokens: maxTokens,
+                    topP: topP,
+                    topK: topK
+                }
+                // safetySettings: [...] // Optional
+            };
+
+            // *** MODIFIED: Updated Response Handling ***
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody),
+                });
+
+                if (!response.ok) {
+                    let errorText = `API Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorData = await response.json();
+                        console.error("API Error Response:", errorData);
+                        errorText += ` - ${errorData?.error?.message || 'No additional details'}`;
+                    } catch (e) {
+                        try {
+                             errorText += ` - ${await response.text()}`; // Try raw text
+                        } catch(e2) { /* ignore final effort */ }
+                    }
+                    throw new Error(errorText);
+                }
+
+                const data = await response.json();
+                console.log("API Response Data:", JSON.stringify(data, null, 2)); // Log the full raw response
+
+                let generatedText = "";
+                let finishReason = "UNKNOWN";
+                let safetyFeedback = null;
+                let tokenUsage = data.usageMetadata; // Get token usage info
+
+                // Check candidate existence and structure
+                if (data.candidates && data.candidates.length > 0) {
+                    const candidate = data.candidates[0];
+                    finishReason = candidate.finishReason || "UNKNOWN";
+
+                    // Extract text only if content and parts exist
+                    if (candidate.content?.parts?.length > 0) {
+                        generatedText = candidate.content.parts[0].text;
+                    }
+
+                    // Capture safety ratings if available on the candidate
+                    if (candidate.safetyRatings) {
+                        safetyFeedback = candidate.safetyRatings;
+                    }
+                }
+
+                // Check for prompt-level feedback
+                if (data.promptFeedback) {
+                    console.warn("Prompt Feedback Received:", data.promptFeedback);
+                    if(data.promptFeedback.blockReason && finishReason === "UNKNOWN") {
+                        finishReason = `PROMPT_BLOCKED (${data.promptFeedback.blockReason})`;
+                    }
+                    // Use prompt safety ratings if candidate ratings aren't available
+                    if (!safetyFeedback && data.promptFeedback.safetyRatings) {
+                        safetyFeedback = data.promptFeedback.safetyRatings;
+                    }
+                }
+
+                console.log(`Finish Reason: ${finishReason}`); // Log the finish reason
+                if (tokenUsage) {
+                    console.log(`Token Usage: ${JSON.stringify(tokenUsage)}`);
+                }
+
+                // --- Display Logic ---
+                if (generatedText) {
+                    displayResponse(generatedText);
+                    let statusMessage = `Response received. Finish Reason: ${finishReason}.`;
+                    if (tokenUsage) {
+                        statusMessage += ` Tokens: ${tokenUsage.totalTokenCount || 'N/A'} (Prompt: ${tokenUsage.promptTokenCount || 'N/A'}, Candidates: ${tokenUsage.candidatesTokenCount || 'N/A'}).`;
+                    }
+                    // Add a warning if truncated or stopped for other reasons
+                    if (finishReason === 'MAX_TOKENS') {
+                        showStatus(`${statusMessage} (Warning: Output may be truncated due to token limit)`, false, true); // Show as warning
+                    } else if (finishReason !== 'STOP') {
+                        showStatus(`${statusMessage} (Warning: Output may be incomplete due to finish reason '${finishReason}')`, false, true); // Show other non-STOP reasons as warning
+                    } else {
+                        showStatus(statusMessage, false, false); // Normal completion
+                    }
+
+                } else {
+                    // Handle cases with no text returned
+                    let errorMessage = `No content received. Finish Reason: ${finishReason}.`;
+                    if (safetyFeedback) {
+                        const ratings = safetyFeedback.map(r => `${r.category}: ${r.probability}`).join(', ');
+                        errorMessage += ` Safety Ratings: [${ratings}]`;
+                    }
+                    console.error("No generated text found in response.", data);
+                    showStatus(errorMessage, true); // Show as error
+                    responseOutputDiv.innerHTML = `<em style="color: var(--error-color);">${errorMessage} Check console for details.</em>`;
+                }
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                showStatus(`Error: ${error.message}`, true); // Show as error
+                responseOutputDiv.innerHTML = `<em style="color: var(--error-color);">Failed to get response. Check console for details.</em>`;
+            } finally {
+                showLoading(false);
+            }
+            // *** END OF MODIFIED SECTION ***
+        }
+
+
+        // --- UI Update Functions ---
+        function showLoading(isLoading) {
+            if (isLoading) {
+                if (!statusDiv.classList.contains('error') && !statusDiv.classList.contains('warning')) { // Clear only if not error/warning
+                    statusDiv.innerHTML = '<div class="loader"></div><span>Processing request...</span>';
+                } else { // Keep error/warning but add loader
+                    const currentMessage = statusDiv.querySelector('span')?.textContent || 'Processing request...';
+                    statusDiv.innerHTML = `<div class="loader"></div><span>Processing request... (${currentMessage})</span>`;
+                }
+                statusDiv.classList.remove('error', 'warning'); // Clear visual style during loading
+                sendButton.disabled = true;
+            } else {
+                 const loader = statusDiv.querySelector('.loader');
+                 if (loader) loader.remove(); // Always remove loader
+
+                 const statusSpan = statusDiv.querySelector('span');
+                 if (statusSpan && statusSpan.textContent.startsWith("Processing request...")) {
+                    // Clear the "Processing..." part if a final status wasn't set
+                    if (!statusDiv.textContent?.includes("Response received") && !statusDiv.classList.contains('error') && !statusDiv.classList.contains('warning')) {
+                         statusDiv.innerHTML = '';
+                    } else {
+                        // Keep the final status message (Response received, Error, Warning)
+                        statusSpan.textContent = statusSpan.textContent.replace(/Processing request...\s?\(?([^)]*)\)?/, '$1').trim();
+                        if (!statusSpan.textContent) statusDiv.innerHTML = ''; // Clear if only prefix was removed
+                    }
+                 }
+                 sendButton.disabled = false;
+            }
+        }
+
+        // Added isWarning parameter
+        function showStatus(message, isError = false, isWarning = false) {
+             const loaderHtml = sendButton.disabled ? '<div class="loader"></div>' : '';
+             statusDiv.innerHTML = `${loaderHtml}<span>${message}</span>`;
+             statusDiv.className = isError ? 'error' : (isWarning ? 'warning' : ''); // Apply appropriate class
+         }
+
+        function clearResponse() {
+            responseOutputDiv.innerHTML = '';
+        }
+
+        function displayResponse(text) {
+             const htmlContent = marked.parse(text);
+             responseOutputDiv.innerHTML = htmlContent;
+            responseOutputDiv.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+        }
+
+        function clearAll() {
+            promptInput.value = '';
+            responseOutputDiv.innerHTML = '<span style="color: var(--secondary-color);">Gemini\'s response will appear here...</span>';
+            statusDiv.innerHTML = '';
+            statusDiv.className = '';
+            // Don't clear API key, model selection, config
+            promptInput.focus();
+        }
+
+        // --- Run Initialization ---
+        initialize();
+
+    </script>
+</body>
+</html>
