@@ -1,6 +1,8 @@
 Single HTML file to interface with google's gemini models including the latest gemini pro 2.5. 
 SImply open the page in a web browser, enter your key, select a model, and begin chatting.
 
+![Screenshot From 2025-04-11 13-47-32](https://github.com/user-attachments/assets/ee36b21e-9a7e-446f-9487-c92f5d6e1bc9)
+
 This should work on any operating system with a modern web browser.
 Contributions are welcome, the initial version was written by gemini pro 2.5 03-35.
 
