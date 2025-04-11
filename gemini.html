@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini API Interface</title>
+    <title>Gemini API Chat</title>
     <!-- Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Highlight.js for code syntax highlighting -->
@@ -28,13 +28,20 @@
             --button-text: #ffffff;
             --button-hover-bg: #0056b3;
             --error-color: #dc3545;
-            --warning-color: #ffc107; /* Added warning color */
+            --warning-color: #ffc107;
             --code-bg: #e9ecef;
             --border-color: #dee2e6;
             --shadow-color: rgba(0, 0, 0, 0.1);
             --highlight-style-light: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
             --highlight-style-dark: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
             --highlight-bg: var(--code-bg);
+            --user-bubble-bg: #e7f5ff;
+            --model-bubble-bg: #f1f3f5;
+            --copy-button-bg: rgba(108, 117, 125, 0.1);
+            --copy-button-hover-bg: rgba(108, 117, 125, 0.2);
+            --copy-button-text: var(--secondary-color);
+            --copy-button-copied-bg: #28a745;
+            --copy-button-copied-text: #ffffff;
         }
 
         html[data-theme='dark'] {
@@ -50,11 +57,18 @@
             --button-text: #111;
             --button-hover-bg: #2196f3;
             --error-color: #f44336;
-            --warning-color: #ffca28; /* Added warning color */
+            --warning-color: #ffca28;
             --code-bg: #222;
             --border-color: #444;
             --shadow-color: rgba(255, 255, 255, 0.1);
             --highlight-bg: var(--code-bg);
+            --user-bubble-bg: #1c3b5e;
+            --model-bubble-bg: #383838;
+            --copy-button-bg: rgba(160, 160, 160, 0.15);
+            --copy-button-hover-bg: rgba(160, 160, 160, 0.3);
+            --copy-button-text: var(--secondary-color);
+            --copy-button-copied-bg: #34c759;
+            --copy-button-copied-text: #111;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,14 +76,37 @@
         .container { max-width: 900px; margin: 20px auto; padding: 30px; background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-color); transition: background-color var(--transition-speed), box-shadow var(--transition-speed); flex-grow: 1; display: flex; flex-direction: column; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; transition: border-color var(--transition-speed); }
         h1 { color: var(--primary-color); font-size: 1.8em; transition: color var(--transition-speed); }
+        h2 { /* Added specific h2 style for consistency */
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            color: var(--text-color);
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
         .theme-switcher { cursor: pointer; font-size: 1.5em; }
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--secondary-color); transition: color var(--transition-speed); }
         .input-group input[type="text"], .input-group input[type="password"], .input-group input[type="number"], .input-group textarea, .input-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--input-border); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color); transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed); }
         .input-group input:focus, .input-group textarea:focus, .input-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25); }
-        .input-group select { appearance: none; /* For custom arrow later if needed */ background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23${(getComputedStyle(document.documentElement).getPropertyValue('--secondary-color') || '#6c757d').substring(1)}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 15px center; background-size: .65em auto; padding-right: 40px; /* Make space for arrow */ }
-        .input-group select:disabled { opacity: 0.7; background-color: var(--code-bg); }
+        /* Ensure select dropdown arrow is visible */
+        .input-group select {
+             appearance: none;
+             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23${encodeURIComponent((getComputedStyle(document.documentElement).getPropertyValue('--secondary-color') || '#6c757d').substring(1))}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E');
+             background-repeat: no-repeat;
+             background-position: right 15px center;
+             background-size: .65em auto;
+             padding-right: 40px;
+        }
+        /* Style disabled select */
+        .input-group select:disabled {
+            opacity: 0.65;
+            background-color: var(--code-bg);
+            cursor: not-allowed;
+        }
+        /* Restore default textarea height */
         textarea { resize: vertical; min-height: 120px; }
+        /* Restore default button group margin */
         .button-group { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px; flex-wrap: wrap; }
         button { padding: 12px 20px; background-color: var(--button-bg); color: var(--button-text); border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background-color var(--transition-speed), transform 0.1s ease; }
         button:hover:not(:disabled) { background-color: var(--button-hover-bg); transform: translateY(-1px); }
@@ -77,24 +114,121 @@
         button:disabled { background-color: var(--secondary-color); cursor: not-allowed; opacity: 0.7; }
         #clearButton { background-color: var(--secondary-color); }
         #clearButton:hover:not(:disabled) { background-color: #5a6268; }
+        /* Restore default status margins */
         #status { margin: 20px 0; font-weight: bold; min-height: 1.6em; display: flex; align-items: center; gap: 10px; transition: color var(--transition-speed); }
         #status.error { color: var(--error-color); }
-        #status.warning { color: var(--warning-color); } /* Added warning style */
+        #status.warning { color: var(--warning-color); }
         .loader { border: 4px solid var(--input-border); border-top: 4px solid var(--primary-color); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .response-area { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; margin-top: 10px; overflow-x: auto; flex-grow: 1; min-height: 150px; transition: background-color var(--transition-speed), border-color var(--transition-speed); }
-        #responseOutput { white-space: pre-wrap; word-wrap: break-word; font-size: 0.95em; }
-        #responseOutput :first-child { margin-top: 0; } /* Remove extra top margin from first element */
-        /* Markdown Styles */
-        #responseOutput h1, #responseOutput h2, #responseOutput h3 { margin-top: 1.2em; margin-bottom: 0.6em; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; transition: border-color var(--transition-speed); }
-        #responseOutput h1 { font-size: 1.6em; } #responseOutput h2 { font-size: 1.4em; } #responseOutput h3 { font-size: 1.2em; }
-        #responseOutput p { margin-bottom: 1em; }
-        #responseOutput ul, #responseOutput ol { margin-left: 25px; margin-bottom: 1em; }
-        #responseOutput li { margin-bottom: 0.4em; }
-        #responseOutput blockquote { border-left: 4px solid var(--primary-color); padding-left: 15px; margin: 1em 0; color: var(--secondary-color); font-style: italic; transition: border-color var(--transition-speed), color var(--transition-speed); }
-        #responseOutput code:not(pre code) { background-color: var(--code-bg); color: var(--text-color); padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; transition: background-color var(--transition-speed), color var(--transition-speed); }
-        #responseOutput pre { background-color: var(--highlight-bg); padding: 15px; border-radius: 6px; overflow-x: auto; margin: 1em 0; transition: background-color var(--transition-speed); }
-        #responseOutput pre code { background-color: transparent; padding: 0; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; color: inherit; white-space: pre; }
+
+        /* --- Chat History Area --- */
+        /* Restore default response area padding/margin */
+        .response-area {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px; /* Restore original padding */
+            margin-top: 10px; /* Restore original margin */
+            overflow-y: auto;
+            flex-grow: 1;
+            min-height: 200px; /* Keep min-height */
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+        }
+        #chatContainer {
+            width: 100%;
+            word-wrap: break-word;
+            font-size: 0.95em;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            /* Remove inner padding, rely on .response-area padding */
+        }
+        .chat-placeholder {
+            color: var(--secondary-color);
+            text-align: center;
+            margin: auto;
+            font-style: italic;
+        }
+
+        /* --- Chat Bubbles --- */
+        .chat-bubble {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 85%; /* Slightly wider max-width */
+            word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            line-height: 1.5; /* Adjust line height for readability */
+        }
+        .user-bubble {
+            background-color: var(--user-bubble-bg);
+            color: var(--text-color);
+            border-bottom-right-radius: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .model-bubble {
+            background-color: var(--model-bubble-bg);
+            color: var(--text-color);
+            border-bottom-left-radius: 5px;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+        .chat-bubble :first-child { margin-top: 0; }
+        .chat-bubble :last-child { margin-bottom: 0; }
+
+        /* Markdown Styles within Bubbles */
+        .model-bubble h1, .model-bubble h2, .model-bubble h3 { margin-top: 0.8em; margin-bottom: 0.4em; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.2em; transition: border-color var(--transition-speed); }
+        .model-bubble h1 { font-size: 1.3em; } .model-bubble h2 { font-size: 1.15em; } .model-bubble h3 { font-size: 1.05em; } /* Slightly smaller headings */
+        .model-bubble p { margin-bottom: 0.8em; }
+        .model-bubble ul, .model-bubble ol { margin-left: 20px; margin-bottom: 0.8em; }
+        .model-bubble li { margin-bottom: 0.3em; }
+        .model-bubble blockquote { border-left: 3px solid var(--primary-color); padding-left: 12px; margin: 0.8em 0; color: var(--secondary-color); font-style: italic; transition: border-color var(--transition-speed), color var(--transition-speed); }
+        .model-bubble code:not(pre code) { background-color: var(--code-bg); color: var(--text-color); padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.85em; /* Slightly smaller inline code */ transition: background-color var(--transition-speed), color var(--transition-speed); }
+        .model-bubble pre {
+            background-color: var(--highlight-bg);
+            padding: 10px; /* Uniform padding */
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 0.8em 0;
+            transition: background-color var(--transition-speed);
+            position: relative;
+            padding-top: 30px; /* Reduced padding for copy button */
+        }
+        .model-bubble pre code { background-color: transparent; padding: 0; font-family: 'Courier New', Courier, monospace; font-size: 0.85em; /* Slightly smaller code block font */ color: inherit; white-space: pre; }
+
+        /* --- Copy Code Button --- */
+        .copy-code-button {
+            position: absolute;
+            top: 5px; /* Adjusted position */
+            right: 5px; /* Adjusted position */
+            padding: 3px 6px; /* Smaller padding */
+            font-size: 0.75em; /* Smaller font */
+            background-color: var(--copy-button-bg);
+            color: var(--copy-button-text);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.6; /* Slightly more transparent initially */
+            transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+            z-index: 1;
+        }
+        .model-bubble pre:hover .copy-code-button {
+            opacity: 1;
+        }
+        .copy-code-button:hover {
+            background-color: var(--copy-button-hover-bg);
+        }
+        .copy-code-button.copied {
+             background-color: var(--copy-button-copied-bg);
+             color: var(--copy-button-copied-text);
+             opacity: 1;
+        }
+
+        /* --- Config & Footer --- */
         .api-key-options { display: flex; align-items: center; gap: 10px; margin-top: 5px; font-size: 0.9em; color: var(--secondary-color); }
         .api-key-options input[type="checkbox"] { margin-right: 5px; }
         .api-key-warning { font-size: 0.8em; color: #ffc107; margin-top: 5px; }
@@ -104,13 +238,14 @@
         footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--border-color); color: var(--secondary-color); font-size: 0.9em; transition: border-color var(--transition-speed), color var(--transition-speed); }
         footer a { color: var(--primary-color); text-decoration: none; transition: color var(--transition-speed); }
         footer a:hover { text-decoration: underline; }
+
     </style>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>Gemini API Interface</h1>
+            <h1>Gemini API Chat</h1>
             <div class="theme-switcher" id="themeSwitcher" title="Toggle Theme">🌙</div>
         </header>
 
@@ -126,16 +261,13 @@
             </div>
         </div>
 
+        <!-- Ensure Model Selection is always visible, styling controlled by :disabled -->
         <div class="input-group">
              <label for="modelSelect">Select Model:</label>
              <select id="modelSelect" disabled>
-                 <option value="">-- Enter API Key to Load Models --</option>
+                 <!-- Placeholder updated dynamically by JS -->
+                 <option value="" selected>-- Enter API Key to Load Models --</option>
              </select>
-        </div>
-
-        <div class="input-group">
-            <label for="prompt">Your Prompt (Ctrl+Enter to send):</label>
-            <textarea id="prompt" rows="6" placeholder="Enter your prompt here. Ask Gemini anything..."></textarea>
         </div>
 
         <details>
@@ -147,8 +279,7 @@
                 </div>
                 <div class="input-group">
                     <label for="maxTokens">Max Output Tokens:</label>
-                    <!-- *** MODIFIED: Increased default value *** -->
-                    <input type="number" id="maxTokens" min="1" step="1" value="8192" title="Maximum number of tokens to generate in the response. Default increased.">
+                    <input type="number" id="maxTokens" min="1" step="1" value="8192" title="Maximum number of tokens to generate in the response.">
                 </div>
                  <div class="input-group">
                     <label for="topP">Top P (0-1):</label>
@@ -161,19 +292,29 @@
             </div>
         </details>
 
-        <div class="button-group">
-            <button id="sendButton">Send Prompt</button>
-            <button id="clearButton">Clear</button>
+        <h2>Conversation History</h2> <!-- Updated heading text -->
+        <div class="response-area" id="responseArea">
+            <div id="chatContainer">
+                <div class="chat-placeholder">Conversation will appear here...</div>
+            </div>
         </div>
 
         <div id="status"></div>
 
-        <h2>Response:</h2>
-        <div class="response-area">
-            <div id="responseOutput"><span style="color: var(--secondary-color);">Gemini's response will appear here...</span></div>
+        <!-- Group prompt and buttons together visually -->
+        <div class="input-area"> <!-- Optional wrapper -->
+            <div class="input-group"> <!-- Reuse input-group for consistent margin -->
+                <label for="prompt">Your Message (Ctrl+Enter to send):</label>
+                <textarea id="prompt" rows="4" placeholder="Enter your message here..."></textarea>
+            </div>
+
+            <div class="button-group"> <!-- Buttons associated with the prompt -->
+                <button id="sendButton">Send</button>
+                <button id="clearButton">Clear Chat</button>
+            </div>
         </div>
 
-    </div>
+    </div> <!-- End .container -->
 
      <footer>
         Powered by the <a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer">Google Gemini API</a>. Using model: <span id="currentModelName">N/A</span>.
@@ -188,7 +329,8 @@
         const sendButton = document.getElementById('sendButton');
         const clearButton = document.getElementById('clearButton');
         const statusDiv = document.getElementById('status');
-        const responseOutputDiv = document.getElementById('responseOutput');
+        const chatContainer = document.getElementById('chatContainer');
+        const responseArea = document.getElementById('responseArea');
         const themeSwitcher = document.getElementById('themeSwitcher');
         const temperatureInput = document.getElementById('temperature');
         const maxTokensInput = document.getElementById('maxTokens');
@@ -199,28 +341,55 @@
 
         // --- Configuration ---
         const API_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/";
-        const PREFERRED_MODEL = "gemini-1.5-pro-latest"; // Optional: try to pre-select this
+        const PREFERRED_MODEL = "gemini-1.5-pro-latest";
 
         // --- State ---
         let modelsLoaded = false;
+        let chatHistory = [];
 
         // --- Initialization ---
         function initialize() {
             loadApiKey();
             setupEventListeners();
             initializeTheme();
-            marked.setOptions({
+            configureMarked(); // Separate function for Marked config
+            if (apiKeyInput.value.trim()) {
+                fetchModels(); // Fetch models if key exists on load
+            } else {
+                // Ensure dropdown is disabled with correct placeholder if no key
+                 updateModelDropdown([], "-- Enter API Key to Load Models --");
+            }
+            renderChatHistory();
+        }
+
+        function configureMarked() {
+             marked.setOptions({
                 highlight: function(code, lang) {
                     const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-                    return hljs.highlight(code, { language, ignoreIllegals: true }).value;
+                    // Prevent double highlighting
+                    if (block?.classList?.contains('hljs') || /<span class="hljs-\w+">/.test(code)) {
+                         return code;
+                    }
+                    try {
+                        const result = hljs.highlight(code, { language, ignoreIllegals: true });
+                        return result.value;
+                    } catch (e) {
+                        console.warn("Highlight.js error:", e, "- Using auto-detection fallback. Lang:", lang);
+                        try {
+                            const result = hljs.highlightAuto(code);
+                             return result.value;
+                        } catch (e2) {
+                            console.error("Highlight.js auto-detection failed:", e2);
+                             // Basic escaping as a last resort
+                             return code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        }
+                    }
                 },
                 gfm: true,
                 breaks: true,
             });
-            if (apiKeyInput.value) {
-                fetchModels();
-            }
         }
+
 
         // --- Event Listeners ---
         function setupEventListeners() {
@@ -228,12 +397,14 @@
             clearButton.addEventListener('click', clearAll);
             themeSwitcher.addEventListener('click', toggleTheme);
             rememberApiKeyCheckbox.addEventListener('change', handleRememberKeyChange);
-            apiKeyInput.addEventListener('blur', handleApiKeyBlur);
+            apiKeyInput.addEventListener('input', handleApiKeyInput); // Use input for immediate feedback
             modelSelect.addEventListener('change', handleModelSelectionChange);
             promptInput.addEventListener('keydown', (event) => {
                 if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
                     event.preventDefault();
-                    handleSendPrompt();
+                    if (!sendButton.disabled) {
+                        handleSendPrompt();
+                    }
                 }
             });
         }
@@ -242,15 +413,23 @@
          async function fetchModels() {
             const apiKey = apiKeyInput.value.trim();
             if (!apiKey) {
-                updateModelDropdown([], "API Key is required to load models.");
+                // Should not happen if called correctly, but safeguard
+                updateModelDropdown([], "-- Enter API Key to Load Models --");
                 modelsLoaded = false;
                 return;
             }
 
+            // Prevent multiple fetches if already loading
+            if (modelSelect.disabled && modelSelect.options[0]?.text === "Loading...") {
+                 console.log("Model fetch already in progress.");
+                 return;
+             }
+
             modelsLoaded = false;
-            modelSelect.disabled = true;
+            updateModelDropdown([], "Loading..."); // Set loading state immediately
+            modelSelect.disabled = true; // Ensure disabled during load
             showStatus("Loading available models...", false);
-            updateModelDropdown([], "Loading...");
+
 
             const listModelsUrl = `${API_ENDPOINT_BASE}models?key=${apiKey}`;
 
@@ -260,75 +439,88 @@
                     let errorText = `Failed to list models: ${response.status} ${response.statusText}`;
                      try {
                         const errorData = await response.json();
-                        errorText += ` - ${errorData?.error?.message || 'No details'}`;
-                    } catch(e) { /* ignore */ }
-                    throw new Error(errorText);
+                        // Check for specific API key errors
+                        if (response.status === 400 && errorData?.error?.message.includes("API key not valid")) {
+                            errorText = "API Key not valid. Please check your key.";
+                        } else if (response.status === 403 && errorData?.error?.message.includes("permission")) {
+                             errorText = "Permission denied. Check API key permissions.";
+                        } else {
+                            errorText += ` - ${errorData?.error?.message || 'No details'}`;
+                        }
+                    } catch(e) { /* ignore if error response is not json */ }
+                    throw new Error(errorText); // Throw the constructed error
                 }
 
                 const data = await response.json();
                 console.log("Available Models:", data);
 
                 const compatibleModels = (data.models || [])
-                    .filter(model => model.supportedGenerationMethods?.includes('generateContent'))
+                    .filter(model => model.name.startsWith('models/') && model.supportedGenerationMethods?.includes('generateContent'))
                     .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
                 if (compatibleModels.length > 0) {
                     updateModelDropdown(compatibleModels);
                     showStatus("Models loaded successfully.", false);
                     modelsLoaded = true;
-                    modelSelect.disabled = false;
-                    handleModelSelectionChange();
+                    // modelSelect.disabled = false; // updateModelDropdown handles this
                  } else {
                      updateModelDropdown([], "No compatible models found.");
-                     showStatus("No compatible (generateContent) models found for this API key.", true);
+                     showStatus("No compatible (generateContent) models found for this API key.", true, true); // Show as warning
+                     modelsLoaded = false; // Ensure state reflects no models loaded
                  }
 
             } catch (error) {
                 console.error("Fetch Models Error:", error);
-                showStatus(`Error loading models: ${error.message}`, true);
-                updateModelDropdown([], "Error loading models.");
+                const displayError = error.message || "An unknown error occurred loading models.";
+                showStatus(`Error: ${displayError}`, true); // Display error in status
+                updateModelDropdown([], "Error loading models. Check Key/Console."); // Update dropdown placeholder
                  modelsLoaded = false;
-                 modelSelect.disabled = true;
+                 modelSelect.disabled = true; // Ensure disabled on error
             }
         }
 
         function updateModelDropdown(models, placeholderText = "-- Select a Model --") {
-            modelSelect.innerHTML = '';
+            modelSelect.innerHTML = ''; // Clear existing options
 
             const placeholderOption = document.createElement('option');
             placeholderOption.value = "";
             placeholderOption.textContent = placeholderText;
-            placeholderOption.disabled = models.length > 0;
+            placeholderOption.disabled = true; // Always disable the placeholder
+            placeholderOption.selected = true; // Ensure it's selected
             modelSelect.appendChild(placeholderOption);
 
             let preferredModelExists = false;
+            const preferredValue = `models/${PREFERRED_MODEL}`;
+
             models.forEach(model => {
                 const option = document.createElement('option');
                 option.value = model.name;
-                option.textContent = model.displayName || model.name.split('/').pop();
+                option.textContent = model.displayName || model.name.split('/').pop(); // Use display name if available
                 modelSelect.appendChild(option);
-                if (model.name.endsWith(PREFERRED_MODEL)) {
+                if (model.name === preferredValue) {
                     preferredModelExists = true;
                 }
             });
 
-            if (preferredModelExists) {
-                const preferredValue = `models/${PREFERRED_MODEL}`;
-                if (modelSelect.querySelector(`option[value="${preferredValue}"]`)) {
-                    modelSelect.value = preferredValue;
+            // Enable dropdown ONLY if models were successfully loaded
+            modelSelect.disabled = models.length === 0;
+
+            if (models.length > 0) {
+                if (preferredModelExists) {
+                    modelSelect.value = preferredValue; // Select preferred
                 } else {
-                     console.warn(`Preferred model ${PREFERRED_MODEL} found but full name mismatch? Attempting selection anyway.`);
-                     modelSelect.value = preferredValue;
+                    // Optionally select the first available model if preferred not found
+                    // modelSelect.value = models[0].name;
+                    placeholderOption.selected = true; // Keep placeholder selected if preferred doesn't exist
                 }
-            } else if (models.length > 0) {
-                 // modelSelect.value = models[0].name; // Optionally auto-select first
             }
 
-            modelSelect.disabled = models.length === 0;
+            handleModelSelectionChange(); // Update footer name
         }
 
         function handleModelSelectionChange() {
              const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+             // Check if a valid model (not the placeholder) is selected
              if (selectedOption && selectedOption.value) {
                  currentModelNameSpan.textContent = selectedOption.text;
              } else {
@@ -341,13 +533,11 @@
         function loadApiKey() {
             const rememberedKey = localStorage.getItem('geminiApiKey');
             const shouldRemember = localStorage.getItem('rememberGeminiApiKey') === 'true';
-
             rememberApiKeyCheckbox.checked = shouldRemember;
-
             if (shouldRemember && rememberedKey) {
                 apiKeyInput.value = rememberedKey;
                 console.info("API Key loaded from Local Storage.");
-                // Models will be fetched by initialize()
+                // Fetching models is handled in initialize()
             }
         }
 
@@ -359,9 +549,9 @@
                     localStorage.setItem('rememberGeminiApiKey', 'true');
                     console.info("API Key saved to Local Storage.");
                 } else {
-                    rememberApiKeyCheckbox.checked = false;
-                     localStorage.removeItem('geminiApiKey');
-                     localStorage.removeItem('rememberGeminiApiKey');
+                    rememberApiKeyCheckbox.checked = false; // Uncheck if key is empty
+                    localStorage.removeItem('geminiApiKey');
+                    localStorage.removeItem('rememberGeminiApiKey');
                 }
             } else {
                 localStorage.removeItem('geminiApiKey');
@@ -370,22 +560,34 @@
             }
         }
 
-         function handleApiKeyBlur() {
-             if (apiKeyInput.value.trim()) {
-                 fetchModels();
-             } else {
-                 updateModelDropdown([], "-- Enter API Key to Load Models --");
-                 modelsLoaded = false;
-                 modelSelect.disabled = true;
-                 currentModelNameSpan.textContent = 'N/A';
-             }
-             handleRememberKeyChange(); // Also handle saving
+        // Changed from 'blur' to 'input' for more immediate feedback
+        let apiKeyDebounceTimer;
+        function handleApiKeyInput() {
+             handleRememberKeyChange(); // Update storage setting immediately if checkbox changes
+             clearTimeout(apiKeyDebounceTimer);
+             apiKeyDebounceTimer = setTimeout(() => {
+                 const currentKey = apiKeyInput.value.trim();
+                 if (currentKey) {
+                     // Only fetch if models aren't loaded OR if the key might have changed
+                     // (We don't store the *last fetched* key, so fetch if potentially new)
+                     if (!modelsLoaded || modelSelect.disabled) {
+                        fetchModels();
+                     }
+                 } else {
+                     // Clear models if key is actively deleted
+                     updateModelDropdown([], "-- Enter API Key to Load Models --");
+                     modelsLoaded = false;
+                     showStatus(""); // Clear status bar
+                 }
+             }, 500); // Debounce API calls while typing
          }
 
         // --- Theme Handling ---
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme);
+             // Update select arrow color based on initial theme
+             updateSelectArrowColor();
         }
 
         function setTheme(theme) {
@@ -396,12 +598,24 @@
             const darkThemeUrl = getComputedStyle(html).getPropertyValue('--highlight-style-dark').trim().replace(/['"]/g,'');
             highlightThemeLink.href = theme === 'dark' ? darkThemeUrl : lightThemeUrl;
             localStorage.setItem('theme', theme);
+             updateSelectArrowColor(); // Update arrow on theme change
         }
 
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             setTheme(newTheme);
+        }
+
+        // Helper to update select arrow color based on current theme's secondary color
+        function updateSelectArrowColor() {
+            const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
+            // CSS variable value might be #RRGGBB or #RGB, remove '#' for URL encoding
+            const colorHex = secondaryColor.substring(1);
+             const svgArrow = `data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23${encodeURIComponent(colorHex)}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E`;
+             modelSelect.style.backgroundImage = svgArrow;
+             // Note: This uses inline style, which overrides the CSS rule.
+             // A more robust way might involve setting a CSS variable for the URL.
         }
 
         // --- Main API Call Logic ---
@@ -419,197 +633,307 @@
                 apiKeyInput.focus(); return;
             }
             if (!modelsLoaded || !selectedModelIdentifier) {
-                showStatus("Error: Please select a model from the dropdown.", true);
-                if (!modelsLoaded) await fetchModels();
+                showStatus("Error: Please select a valid model from the dropdown.", true);
+                if (!modelsLoaded && apiKey) await fetchModels(); // Attempt load if key exists but no models
                 modelSelect.focus(); return;
             }
             if (!promptText) {
-                showStatus("Error: Prompt cannot be empty.", true);
+                showStatus("Error: Message cannot be empty.", true);
                 promptInput.focus(); return;
             }
-            if (rememberApiKeyCheckbox.checked) {
-                localStorage.setItem('geminiApiKey', apiKey);
-                localStorage.setItem('rememberGeminiApiKey', 'true');
-            }
+            // Save key on send if checkbox is ticked (redundant with input handler, but safe)
+            handleRememberKeyChange();
 
+            const userMessage = { role: 'user', parts: [{ text: promptText }] };
+            chatHistory.push(userMessage);
+            renderChatHistory();
+            scrollToBottom();
+            promptInput.value = '';
             showLoading(true);
-            clearResponse();
 
-            const modelEndpointName = selectedModelIdentifier.startsWith('models/')
-                ? selectedModelIdentifier.substring('models/'.length)
-                : selectedModelIdentifier;
+            // Model identifier from select value is already correct ('models/...')
+            const apiUrl = `${API_ENDPOINT_BASE}${selectedModelIdentifier}:generateContent?key=${apiKey}`;
+            console.log("Sending API Request to:", apiUrl);
+            console.log("Request Body:", JSON.stringify({ contents: chatHistory, generationConfig: { temperature, maxOutputTokens: maxTokens, topP, topK } }, null, 2));
 
-            const apiUrl = `${API_ENDPOINT_BASE}models/${modelEndpointName}:generateContent?key=${apiKey}`;
-            console.log("Using API URL:", apiUrl);
 
-            const requestBody = {
-                contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: {
-                    temperature: temperature,
-                    maxOutputTokens: maxTokens,
-                    topP: topP,
-                    topK: topK
-                }
-                // safetySettings: [...] // Optional
-            };
-
-            // *** MODIFIED: Updated Response Handling ***
             try {
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody),
+                    body: JSON.stringify({ contents: chatHistory, generationConfig: { temperature, maxOutputTokens: maxTokens, topP, topK } }),
                 });
 
+                // --- Enhanced Error Handling ---
                 if (!response.ok) {
                     let errorText = `API Error: ${response.status} ${response.statusText}`;
+                    let errorData = null;
                     try {
-                        const errorData = await response.json();
-                        console.error("API Error Response:", errorData);
-                        errorText += ` - ${errorData?.error?.message || 'No additional details'}`;
+                        errorData = await response.json();
+                        console.error("API Error Response Body:", errorData);
+                        errorText += ` - ${errorData?.error?.message || 'No additional details provided by API.'}`;
+                         if (errorData?.error?.details) {
+                             errorText += ` Details: ${JSON.stringify(errorData.error.details)}`;
+                         }
+                         // Specific user-friendly messages based on status/content
+                         if (response.status === 400 && errorData?.error?.message.includes("API key not valid")) {
+                            errorText = "API Key not valid. Please check your key and ensure it's enabled.";
+                         } else if (response.status === 403 && errorData?.error?.message.includes("permission")) {
+                             errorText = "Permission Denied. The API key may lack permissions for the selected model or service.";
+                         } else if (response.status === 429) {
+                             errorText = "Rate Limit Exceeded. Please wait and try again later.";
+                         } else if (response.status >= 500) {
+                             errorText = `Server Error (${response.status}). Google AI might be temporarily unavailable. Please try again later.`;
+                         }
+
                     } catch (e) {
+                        // Handle cases where error response is not JSON
                         try {
-                             errorText += ` - ${await response.text()}`; // Try raw text
-                        } catch(e2) { /* ignore final effort */ }
+                            const rawText = await response.text();
+                            errorText += ` - Response: ${rawText.substring(0, 200)}${rawText.length > 200 ? '...' : ''}`; // Include snippet of raw response
+                        } catch (e2) { /* ignore final effort */ }
                     }
-                    throw new Error(errorText);
+                     // Crucially, remove the user message from history if the call failed
+                     chatHistory.pop();
+                     renderChatHistory(); // Re-render without the failed user message
+                    throw new Error(errorText); // Throw the detailed error
                 }
 
+                // --- Process Successful Response ---
                 const data = await response.json();
-                console.log("API Response Data:", JSON.stringify(data, null, 2)); // Log the full raw response
+                console.log("API Response Data:", JSON.stringify(data, null, 2));
 
                 let generatedText = "";
                 let finishReason = "UNKNOWN";
                 let safetyFeedback = null;
-                let tokenUsage = data.usageMetadata; // Get token usage info
+                let tokenUsage = data.usageMetadata;
+                let modelMessage = null;
 
-                // Check candidate existence and structure
                 if (data.candidates && data.candidates.length > 0) {
                     const candidate = data.candidates[0];
                     finishReason = candidate.finishReason || "UNKNOWN";
 
-                    // Extract text only if content and parts exist
-                    if (candidate.content?.parts?.length > 0) {
+                    if (candidate.content?.parts?.length > 0 && candidate.content.role === 'model') {
                         generatedText = candidate.content.parts[0].text;
+                        modelMessage = { role: 'model', parts: [{ text: generatedText }] };
+                    } else {
+                         console.warn("Candidate received, but no valid model content/parts found:", candidate);
+                         // Treat as empty response if structure is wrong
+                         finishReason = candidate.finishReason || "MISSING_CONTENT";
                     }
-
-                    // Capture safety ratings if available on the candidate
                     if (candidate.safetyRatings) {
                         safetyFeedback = candidate.safetyRatings;
                     }
                 }
 
-                // Check for prompt-level feedback
                 if (data.promptFeedback) {
                     console.warn("Prompt Feedback Received:", data.promptFeedback);
-                    if(data.promptFeedback.blockReason && finishReason === "UNKNOWN") {
+                    if (data.promptFeedback.blockReason && finishReason === "UNKNOWN") {
                         finishReason = `PROMPT_BLOCKED (${data.promptFeedback.blockReason})`;
                     }
-                    // Use prompt safety ratings if candidate ratings aren't available
                     if (!safetyFeedback && data.promptFeedback.safetyRatings) {
                         safetyFeedback = data.promptFeedback.safetyRatings;
                     }
+                     // If the *prompt* was blocked, no candidate will be generated.
+                     if (data.promptFeedback.blockReason && !data.candidates) {
+                        finishReason = `PROMPT_BLOCKED (${data.promptFeedback.blockReason})`;
+                        // Remove the user message that triggered the block
+                        chatHistory.pop();
+                     }
                 }
 
-                console.log(`Finish Reason: ${finishReason}`); // Log the finish reason
+                console.log(`Finish Reason: ${finishReason}`);
                 if (tokenUsage) {
                     console.log(`Token Usage: ${JSON.stringify(tokenUsage)}`);
                 }
 
                 // --- Display Logic ---
-                if (generatedText) {
-                    displayResponse(generatedText);
+                if (modelMessage) {
+                    chatHistory.push(modelMessage);
+                    renderChatHistory();
+                    scrollToBottom();
                     let statusMessage = `Response received. Finish Reason: ${finishReason}.`;
                     if (tokenUsage) {
-                        statusMessage += ` Tokens: ${tokenUsage.totalTokenCount || 'N/A'} (Prompt: ${tokenUsage.promptTokenCount || 'N/A'}, Candidates: ${tokenUsage.candidatesTokenCount || 'N/A'}).`;
+                         statusMessage += ` Tokens: ${tokenUsage.totalTokenCount || 'N/A'} total.`;
+                         // Optional more detail: ` (Prompt: ${tokenUsage.promptTokenCount || 'N/A'}, Response: ${tokenUsage.candidatesTokenCount || 'N/A'}).`;
                     }
-                    // Add a warning if truncated or stopped for other reasons
                     if (finishReason === 'MAX_TOKENS') {
-                        showStatus(`${statusMessage} (Warning: Output may be truncated due to token limit)`, false, true); // Show as warning
-                    } else if (finishReason !== 'STOP') {
-                        showStatus(`${statusMessage} (Warning: Output may be incomplete due to finish reason '${finishReason}')`, false, true); // Show other non-STOP reasons as warning
+                        showStatus(`${statusMessage} (Warning: Output truncated)`, false, true);
+                    } else if (finishReason === 'SAFETY' || finishReason === 'RECITATION' || finishReason === 'OTHER') {
+                         showStatus(`${statusMessage} (Warning: Output may be incomplete - ${finishReason})`, false, true);
+                    } else if (finishReason !== 'STOP' && finishReason !== 'UNKNOWN') { // Show non-standard stops as info
+                         showStatus(`${statusMessage}`, false, false);
+                    } else if (finishReason === 'STOP') {
+                         showStatus(statusMessage, false, false); // Normal completion
                     } else {
-                        showStatus(statusMessage, false, false); // Normal completion
+                        showStatus(""); // Clear status if UNKNOWN and text received
                     }
-
                 } else {
-                    // Handle cases with no text returned
+                    // Handle cases with NO text returned (blocked, error implicit in !response.ok)
                     let errorMessage = `No content received. Finish Reason: ${finishReason}.`;
-                    if (safetyFeedback) {
-                        const ratings = safetyFeedback.map(r => `${r.category}: ${r.probability}`).join(', ');
-                        errorMessage += ` Safety Ratings: [${ratings}]`;
-                    }
-                    console.error("No generated text found in response.", data);
+                     if (finishReason.startsWith('PROMPT_BLOCKED')) {
+                         errorMessage = `Your prompt was blocked. Reason: ${data.promptFeedback?.blockReason || 'Safety Filter'}.`;
+                         renderChatHistory(); // Re-render (user msg was popped)
+                         // Optionally add safety ratings to message
+                     } else if (finishReason === 'SAFETY') {
+                         errorMessage = `Response blocked for safety. Reason: ${finishReason}.`;
+                     } else if (finishReason === 'RECITATION') {
+                         errorMessage = `Response blocked due to potential recitation.`;
+                     } else if (finishReason === 'MISSING_CONTENT') {
+                         errorMessage = `Model returned a response structure without content. Finish Reason: ${finishReason}.`;
+                     } else {
+                         console.error("No valid model message or specific block reason found.", data);
+                         errorMessage = `Received empty or invalid response structure from API. Finish Reason: ${finishReason}. Check console.`;
+                     }
                     showStatus(errorMessage, true); // Show as error
-                    responseOutputDiv.innerHTML = `<em style="color: var(--error-color);">${errorMessage} Check console for details.</em>`;
+                     // Don't add an empty model message to history
+                     renderChatHistory(); // Ensure history is accurate if user message was popped
                 }
 
             } catch (error) {
-                console.error("Fetch Error:", error);
-                showStatus(`Error: ${error.message}`, true); // Show as error
-                responseOutputDiv.innerHTML = `<em style="color: var(--error-color);">Failed to get response. Check console for details.</em>`;
+                console.error("API Call Failed:", error);
+                 // Error message already set in the !response.ok block or fetch catch
+                 showStatus(`Error: ${error.message}`, true);
+                 // User message should have been popped already if error occurred after sending
+                 renderChatHistory(); // Ensure UI reflects accurate history
             } finally {
                 showLoading(false);
+                promptInput.focus();
             }
-            // *** END OF MODIFIED SECTION ***
         }
 
 
         // --- UI Update Functions ---
         function showLoading(isLoading) {
-            if (isLoading) {
-                if (!statusDiv.classList.contains('error') && !statusDiv.classList.contains('warning')) { // Clear only if not error/warning
-                    statusDiv.innerHTML = '<div class="loader"></div><span>Processing request...</span>';
-                } else { // Keep error/warning but add loader
-                    const currentMessage = statusDiv.querySelector('span')?.textContent || 'Processing request...';
-                    statusDiv.innerHTML = `<div class="loader"></div><span>Processing request... (${currentMessage})</span>`;
-                }
-                statusDiv.classList.remove('error', 'warning'); // Clear visual style during loading
-                sendButton.disabled = true;
-            } else {
+             const currentStatusText = statusDiv.querySelector('span')?.textContent || '';
+             const isError = statusDiv.classList.contains('error');
+             const isWarning = statusDiv.classList.contains('warning');
+
+             if (isLoading) {
+                 statusDiv.innerHTML = `<div class="loader"></div><span>Processing request...</span>`;
+                 if (isError) statusDiv.classList.add('error');
+                 if (isWarning) statusDiv.classList.add('warning');
+                 sendButton.disabled = true;
+                 promptInput.disabled = true;
+             } else {
                  const loader = statusDiv.querySelector('.loader');
-                 if (loader) loader.remove(); // Always remove loader
+                 if (loader) loader.remove();
 
                  const statusSpan = statusDiv.querySelector('span');
                  if (statusSpan && statusSpan.textContent.startsWith("Processing request...")) {
-                    // Clear the "Processing..." part if a final status wasn't set
-                    if (!statusDiv.textContent?.includes("Response received") && !statusDiv.classList.contains('error') && !statusDiv.classList.contains('warning')) {
+                     // Clear loading text ONLY if no other status was set
+                     if (!isError && !isWarning && statusSpan.textContent === "Processing request...") {
                          statusDiv.innerHTML = '';
-                    } else {
-                        // Keep the final status message (Response received, Error, Warning)
-                        statusSpan.textContent = statusSpan.textContent.replace(/Processing request...\s?\(?([^)]*)\)?/, '$1').trim();
-                        if (!statusSpan.textContent) statusDiv.innerHTML = ''; // Clear if only prefix was removed
-                    }
+                     } else {
+                         // Keep the error/warning/response message
+                         statusSpan.textContent = currentStatusText; // Restore previous text if needed
+                     }
                  }
-                 sendButton.disabled = false;
-            }
-        }
+                  // If no span exists after removing loader (e.g., initial load state), clear innerHTML
+                 if (!statusDiv.querySelector('span')) {
+                      statusDiv.innerHTML = '';
+                 }
 
-        // Added isWarning parameter
+                 sendButton.disabled = false;
+                 promptInput.disabled = false;
+             }
+         }
+
         function showStatus(message, isError = false, isWarning = false) {
              const loaderHtml = sendButton.disabled ? '<div class="loader"></div>' : '';
              statusDiv.innerHTML = `${loaderHtml}<span>${message}</span>`;
-             statusDiv.className = isError ? 'error' : (isWarning ? 'warning' : ''); // Apply appropriate class
+             // Use classList for cleaner class management
+             statusDiv.classList.toggle('error', isError);
+             statusDiv.classList.toggle('warning', !isError && isWarning); // Only add warning if not error
          }
 
-        function clearResponse() {
-            responseOutputDiv.innerHTML = '';
+        function renderChatHistory() {
+            chatContainer.innerHTML = ''; // Clear existing bubbles
+
+            if (chatHistory.length === 0) {
+                chatContainer.innerHTML = '<div class="chat-placeholder">Conversation will appear here...</div>';
+                return;
+            }
+
+            chatHistory.forEach(message => {
+                if (!message || !message.role || !message.parts || message.parts.length === 0) {
+                    console.warn("Skipping invalid message in chat history:", message);
+                    return; // Skip rendering malformed messages
+                }
+
+                const bubble = document.createElement('div');
+                bubble.classList.add('chat-bubble');
+                const messageText = message.parts[0].text || ""; // Ensure text exists
+
+                if (message.role === 'user') {
+                    bubble.classList.add('user-bubble');
+                    // Use textContent for user messages to prevent XSS from user input
+                    bubble.textContent = messageText;
+                } else if (message.role === 'model') {
+                    bubble.classList.add('model-bubble');
+                    try {
+                        // Use Marked for model responses
+                        const rawHtml = marked.parse(messageText);
+                        bubble.innerHTML = rawHtml;
+
+                        const preBlocks = bubble.querySelectorAll('pre');
+                        preBlocks.forEach(pre => {
+                             const codeElement = pre.querySelector('code');
+                            if (!codeElement) return;
+
+                             // Apply relative positioning via JS if needed (prefer CSS)
+                             // pre.style.position = 'relative';
+
+                             const copyButton = document.createElement('button');
+                             copyButton.textContent = 'Copy';
+                             copyButton.className = 'copy-code-button';
+                             copyButton.title = 'Copy code to clipboard';
+                             copyButton.setAttribute('aria-label', 'Copy code block'); // Accessibility
+
+                             copyButton.addEventListener('click', (e) => {
+                                 e.stopPropagation(); // Prevent potential parent clicks
+                                 const codeToCopy = codeElement.textContent || '';
+                                 navigator.clipboard.writeText(codeToCopy).then(() => {
+                                     copyButton.textContent = 'Copied!';
+                                     copyButton.classList.add('copied');
+                                     setTimeout(() => {
+                                         copyButton.textContent = 'Copy';
+                                         copyButton.classList.remove('copied');
+                                     }, 2000);
+                                 }).catch(err => {
+                                     console.error('Failed to copy code: ', err);
+                                     copyButton.textContent = 'Error';
+                                      setTimeout(() => {
+                                         copyButton.textContent = 'Copy';
+                                     }, 2000);
+                                 });
+                             });
+                             pre.appendChild(copyButton);
+
+                             // Ensure highlighting happens *after* button is added if Marked doesn't auto-highlight
+                            if (codeElement && !codeElement.classList.contains('hljs')) {
+                                 hljs.highlightElement(codeElement);
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Markdown parsing/rendering error:", e);
+                         // Fallback to textContent for safety if Marked fails
+                        bubble.textContent = messageText;
+                    }
+                }
+                chatContainer.appendChild(bubble);
+            });
         }
 
-        function displayResponse(text) {
-             const htmlContent = marked.parse(text);
-             responseOutputDiv.innerHTML = htmlContent;
-            responseOutputDiv.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
+        function scrollToBottom() {
+            responseArea.scrollTop = responseArea.scrollHeight;
         }
 
         function clearAll() {
             promptInput.value = '';
-            responseOutputDiv.innerHTML = '<span style="color: var(--secondary-color);">Gemini\'s response will appear here...</span>';
-            statusDiv.innerHTML = '';
-            statusDiv.className = '';
-            // Don't clear API key, model selection, config
+            chatHistory = [];
+            renderChatHistory();
+            showStatus(""); // Clear status bar
             promptInput.focus();
         }
 
