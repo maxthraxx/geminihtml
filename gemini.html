@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeminiHTML</title>
-    <!-- Marked.js for Markdown rendering -->
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Highlight.js for code syntax highlighting -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="highlight-theme">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
@@ -42,6 +42,10 @@
             --copy-button-text: var(--secondary-color);
             --copy-button-copied-bg: #28a745;
             --copy-button-copied-text: #ffffff;
+            /* NEW: Download button vars */
+            --download-button-bg: rgba(108, 117, 125, 0.1);
+            --download-button-hover-bg: rgba(108, 117, 125, 0.2);
+            --download-button-text: var(--secondary-color);
         }
 
         html[data-theme='dark'] {
@@ -69,6 +73,10 @@
             --copy-button-text: var(--secondary-color);
             --copy-button-copied-bg: #34c759;
             --copy-button-copied-text: #111;
+            /* NEW: Download button vars */
+            --download-button-bg: rgba(160, 160, 160, 0.15);
+            --download-button-hover-bg: rgba(160, 160, 160, 0.3);
+            --download-button-text: var(--secondary-color);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -239,33 +247,67 @@
             margin: 0.8em 0;
             transition: background-color var(--transition-speed);
             position: relative;
-            padding-top: 30px; /* Space for copy button */
+            /* Increased top padding for two buttons */
+            padding-top: 35px;
         }
-        .model-bubble pre code { background-color: transparent; padding: 0; font-family: 'Courier New', Courier, monospace; font-size: 0.85em; color: inherit; white-space: pre; }
+        /* Code within pre is now styled via hljs */
+        .model-bubble pre code {
+            background-color: transparent; /* Let pre handle background */
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+            color: inherit; /* Inherit color from parent/theme */
+            white-space: pre; /* Preserve whitespace */
+        }
 
-        /* --- Copy Code Button --- */
-        .copy-code-button {
+        /* --- Code Block Buttons (Copy & Download) --- */
+        /* Common styles for buttons */
+        .code-action-button {
             position: absolute;
             top: 5px;
-            right: 5px;
             padding: 3px 6px;
             font-size: 0.75em;
-            background-color: var(--copy-button-bg);
-            color: var(--copy-button-text);
             border: 1px solid var(--border-color);
             border-radius: 4px;
             cursor: pointer;
             opacity: 0.6;
             transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             z-index: 1;
+            display: inline-flex; /* Use flex for icon alignment */
+            align-items: center;
+            gap: 3px; /* Space between icon and text */
         }
-        .model-bubble pre:hover .copy-code-button { opacity: 1; }
+        .model-bubble pre:hover .code-action-button { opacity: 1; }
+        .code-action-button:hover { transform: translateY(-1px); } /* Subtle lift */
+        .code-action-button svg { /* Style for icons */
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+        }
+
+        /* Specific button styles */
+        .copy-code-button {
+            right: 75px; /* Increased space from edge */
+            background-color: var(--copy-button-bg);
+            color: var(--copy-button-text);
+        }
         .copy-code-button:hover { background-color: var(--copy-button-hover-bg); }
         .copy-code-button.copied {
              background-color: var(--copy-button-copied-bg);
              color: var(--copy-button-copied-text);
              opacity: 1;
              border-color: transparent; /* Hide border when copied */
+        }
+        /* NEW: Download button styles */
+        .download-code-button {
+            right: 5px; /* Position download button to the far right */
+            background-color: var(--download-button-bg);
+            color: var(--download-button-text);
+        }
+        .download-code-button:hover { background-color: var(--download-button-hover-bg); }
+        .download-code-button.downloading { /* Optional: style while downloading */
+            opacity: 0.7;
+            cursor: default;
         }
 
         /* --- Config & Footer --- */
@@ -291,6 +333,22 @@
             margin-bottom: 10px; /* Keep bottom margin */
         }
 
+        /* --- Streaming Styles --- */
+        /* Style for streaming indicator */
+        .streaming-indicator {
+            display: inline-block;
+            animation: blink 1s step-start 0s infinite;
+            opacity: 0.7;
+            margin-left: 2px; /* Small space */
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        /* Optional: Subtle background pulse for the whole bubble while streaming */
+        .model-bubble.streaming {
+             /* background-color: rgba(var(--primary-color-rgb), 0.05); */ /* Example subtle pulse */
+        }
+
     </style>
 </head>
 <body>
@@ -298,7 +356,7 @@
     <div class="container">
         <header>
             <h1>Gemini HTML</h1>
-            <!-- Updated to use text, default shows 'Dark' -->
+            
             <div class="theme-switcher" id="themeSwitcher" title="Switch to Dark Mode">Dark</div>
         </header>
 
@@ -314,11 +372,11 @@
             </div>
         </div>
 
-        <!-- Ensure Model Selection is always visible, styling controlled by :disabled -->
+        
         <div class="input-group">
              <label for="modelSelect">Select Model:</label>
              <select id="modelSelect" disabled>
-                 <!-- Placeholder updated dynamically by JS -->
+                 
                  <option value="" selected>-- Enter API Key to Load Models --</option>
              </select>
              <small style="display: block; margin-top: 5px; color: var(--secondary-color);">Note: File uploads work best with multimodal models like Gemini 1.5 Pro.</small>
@@ -346,7 +404,7 @@
             </div>
         </details>
 
-        <h2>Conversation History</h2> <!-- Updated heading text -->
+        <h2>Conversation History</h2> 
         <div class="response-area" id="responseArea">
             <div id="chatContainer">
                 <div class="chat-placeholder">Conversation will appear here...</div>
@@ -355,14 +413,14 @@
 
         <div id="status"></div>
 
-        <!-- Group prompt, upload, and buttons together visually -->
+        
         <div class="input-area">
             <div class="input-group">
                 <label for="prompt">Your Message (Ctrl+Enter to send):</label>
                 <textarea id="prompt" rows="4" placeholder="Enter your message here... (Optional if uploading a file)"></textarea>
             </div>
 
-            <!-- File Upload Section -->
+            
             <div class="button-group">
                 <button id="uploadButton" title="Select a file to upload (image, pdf, etc.)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 5px;">
@@ -371,19 +429,19 @@
                     </svg>
                     Upload File
                 </button>
-                <input type="file" id="fileInput" accept="image/*,application/pdf,audio/*,video/*,text/*" style="display: none;"> <!-- Define acceptable types -->
+                <input type="file" id="fileInput" accept="image/*,application/pdf,audio/*,video/*,text/*" style="display: none;"> 
                 <span id="fileNameDisplay">No file selected.</span>
             </div>
-            <!-- End File Upload Section -->
+            
 
 
-            <div class="button-group"> <!-- Send/Clear Buttons -->
+            <div class="button-group"> 
                 <button id="sendButton">Send</button>
                 <button id="clearButton">Clear Chat</button>
             </div>
         </div>
 
-    </div> <!-- End .container -->
+    </div> 
 
      <footer>
         Powered by the <a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer">Google Gemini API</a>. Using model: <span id="currentModelName">N/A</span>.
@@ -426,7 +484,7 @@
             loadApiKey();
             setupEventListeners();
             initializeTheme(); // Sets initial text/title based on saved theme
-            configureMarked();
+            configureMarked(); // Uses the corrected function
             if (apiKeyInput.value.trim()) {
                 fetchModels();
             } else {
@@ -435,30 +493,65 @@
             renderChatHistory();
         }
 
+        // --- Utility Functions (needed early for Marked config) ---
+        function escapeHtml(unsafe) {
+             if (typeof unsafe !== 'string') return '';
+             return unsafe
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#039;");
+         }
+
+        // --- Marked Configuration ---
         function configureMarked() {
              marked.setOptions({
+                // 1. Define the highlight function: It should return the highlighted code *string*
                 highlight: function(code, lang) {
                     const language = hljs.getLanguage(lang) ? lang : 'plaintext';
                     try {
-                        const result = hljs.highlight(code, { language, ignoreIllegals: true });
-                        return result.value;
+                        // Return just the highlighted value string
+                        return hljs.highlight(code, { language, ignoreIllegals: true }).value;
                     } catch (e) {
                         console.warn("Highlight.js error:", e, "- Using auto-detection fallback. Lang:", lang);
                         try {
-                            const result = hljs.highlightAuto(code);
-                             return result.value;
+                            // Return just the highlighted value string from auto-detection
+                            return hljs.highlightAuto(code).value;
                         } catch (e2) {
                             console.error("Highlight.js auto-detection failed:", e2);
-                             // Basic escaping as a last resort
-                             return code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+                            // Basic escaping as a last resort if highlighting fails entirely
+                            return escapeHtml(code);
                         }
                     }
                 },
-                gfm: true,
-                breaks: true,
+                // 2. Override the default code renderer
+                renderer: new marked.Renderer({
+                     code(code, language, isEscaped) {
+                         // Determine the language, default to 'plaintext'
+                         const lang = (language || 'plaintext').toLowerCase();
+                         // Call the highlight function configured in the options
+                         // 'this.options.highlight' refers to the function defined above
+                         const highlightedCode = this.options.highlight(code, lang);
+
+                         // Add the 'hljs' class for highlight.js styling, and 'language-xxx' for our use
+                         const className = `hljs language-${lang}`;
+
+                         // Check if highlight function returned non-highlighted code (or failed)
+                         // If so, make sure the original code is escaped before rendering.
+                         const finalCode = (highlightedCode === escapeHtml(code))
+                           ? highlightedCode // Already escaped by fallback in highlight fn
+                           : highlightedCode; // Contains HTML from highlight.js
+
+                         // Construct the final HTML structure expected by browsers
+                         // Wrap the highlighted code in <pre><code class="...">...</code></pre>
+                         return `<pre><code class="${className}">${finalCode}</code></pre>\n`;
+                     }
+                }),
+                gfm: true,  // Enable GitHub Flavored Markdown
+                breaks: true // Use GFM line breaks (single newline = <br>)
             });
         }
-
 
         // --- Event Listeners ---
         function setupEventListeners() {
@@ -480,10 +573,15 @@
             uploadButton.addEventListener('click', () => fileInput.click()); // Trigger hidden input
             fileInput.addEventListener('change', handleFileSelection);
 
-             // Add listener for copy buttons (using event delegation on chatContainer)
+             // Add listener for copy AND download buttons (using event delegation on chatContainer)
              chatContainer.addEventListener('click', function(event) {
-                 if (event.target.classList.contains('copy-code-button')) {
-                     handleCopyCodeClick(event.target);
+                 const copyButton = event.target.closest('.copy-code-button');
+                 const downloadButton = event.target.closest('.download-code-button');
+
+                 if (copyButton) {
+                     handleCopyCodeClick(copyButton);
+                 } else if (downloadButton) {
+                     handleDownloadCodeClick(downloadButton); // NEW: Handle download click
                  }
              });
         }
@@ -778,7 +876,7 @@
             fileNameDisplay.textContent = 'No file selected.';
         }
 
-        // --- Main API Call Logic ---
+        // --- Main API Call Logic (Modified for Streaming) ---
         async function handleSendPrompt() {
             const apiKey = apiKeyInput.value.trim();
             const selectedModelIdentifier = modelSelect.value;
@@ -788,7 +886,7 @@
             const topP = parseFloat(topPInput.value);
             const topK = parseInt(topKInput.value, 10);
 
-            // Validation
+            // --- Validation (same as before) ---
             if (!apiKey) {
                 showStatus("Error: API Key is missing.", true); apiKeyInput.focus(); return;
             }
@@ -806,7 +904,7 @@
                  showStatus("Warning: Selected model likely does not support file uploads. Use Gemini 1.5 Pro or a multimodal model.", false, true);
              }
 
-            // Construct User Message Parts
+            // --- Construct User Message (same as before) ---
             const userParts = [];
             if (promptText) userParts.push({ text: promptText });
             let fileInfoForHistory = null;
@@ -819,25 +917,49 @@
 
             const userMessage = { role: 'user', parts: userParts, fileInfo: fileInfoForHistory };
             chatHistory.push(userMessage);
-            renderChatHistory();
-            scrollToBottom();
-            promptInput.value = '';
+            promptInput.value = ''; // Clear prompt input
+            promptInput.focus();  // Refocus prompt input
+
+            // --- Prepare for Streaming UI Update ---
+            // 1. Render the user message immediately
+            renderChatHistory(); // Renders everything up to the new user message
+
+            // 2. Create and add the placeholder model bubble
+            const streamingModelBubble = document.createElement('div');
+            streamingModelBubble.classList.add('chat-bubble', 'model-bubble', 'streaming'); // Add 'streaming' class
+            // Add a subtle pulsing or marker for streaming state (optional)
+            streamingModelBubble.innerHTML = `<span class="streaming-indicator">▌</span>`;
+            chatContainer.appendChild(streamingModelBubble);
+            scrollToBottom(); // Scroll to show the placeholder
+
+            // 3. Show loading state
             showLoading(true);
+            showStatus("Generating response...", false); // Update status
 
-            // Prepare API request body
-            const contentsForApi = chatHistory.map(msg => {
+            // --- Prepare API Request Body (same context, different endpoint) ---
+             const contentsForApi = chatHistory.map(msg => {
                  const { fileInfo, parts, ...apiMsg } = msg;
-                 return { ...apiMsg, parts: Array.isArray(parts) ? parts : [] };
-            });
-            const apiUrl = `${API_ENDPOINT_BASE}${selectedModelIdentifier}:generateContent?key=${apiKey}`;
-            const requestBody = {
-                 contents: contentsForApi,
-                 generationConfig: { temperature, maxOutputTokens: maxTokens, topP, topK }
-                 // safetySettings: [...] // Consider adding safety settings
-            };
+                 // Ensure parts is always an array for the API
+                 return { ...apiMsg, parts: Array.isArray(parts) ? parts : (parts ? [parts] : []) };
+             });
+             // Use streamGenerateContent endpoint with Server-Sent Events (SSE)
+             const apiUrl = `${API_ENDPOINT_BASE}${selectedModelIdentifier}:streamGenerateContent?key=${apiKey}&alt=sse`;
+             const requestBody = {
+                  contents: contentsForApi,
+                  generationConfig: { temperature, maxOutputTokens: maxTokens, topP, topK }
+                  // safetySettings: [...]
+             };
 
-            console.log("Sending API Request to:", apiUrl);
-            console.log("Request Body Structure:", JSON.stringify(requestBody, (key, value) => key === 'data' ? '...' : value, 2));
+            console.log("Sending API Stream Request to:", apiUrl);
+            // console.log("Request Body Structure:", JSON.stringify(requestBody, (key, value) => key === 'data' ? '...' : value, 2)); // Might be too verbose
+
+            let fullResponseText = ""; // Accumulate text
+            let finalModelMessage = { role: 'model', parts: [{ text: '' }] }; // Prepare history entry
+            let fetchError = null;
+            let finalFinishReason = "UNKNOWN";
+            let finalTokenUsage = null;
+            let blocked = false;
+            let blockReason = null;
 
             try {
                 const response = await fetch(apiUrl, {
@@ -846,157 +968,288 @@
                     body: JSON.stringify(requestBody),
                 });
 
-                // Enhanced Error Handling
                 if (!response.ok) {
-                    let errorText = `API Error: ${response.status} ${response.statusText}`;
-                    let errorData = null;
-                    let detailedMessage = 'No additional details provided by API.';
-                    try {
-                        errorData = await response.json();
-                        console.error("API Error Response Body:", errorData);
-                         if (errorData?.error?.message) detailedMessage = errorData.error.message;
-                         if (errorData?.error?.details) detailedMessage += ` Details: ${JSON.stringify(errorData.error.details)}`;
-                         // Specific Error Parsing
-                         if (response.status === 400) {
-                             if (detailedMessage.includes("API key not valid")) errorText = "API Key not valid. Please check your key and ensure it's enabled.";
-                             else if (detailedMessage.includes("User location is not supported")) errorText = "Error: Service is not available in your location.";
-                             else if (detailedMessage.includes("must have") || detailedMessage.includes("invalid format")) errorText = `API Error: Invalid request structure. ${detailedMessage}`;
-                             else if (detailedMessage.includes("request payload size exceeds the limit")) errorText = `API Error: Request size limit exceeded. Try a smaller file or shorter prompt. ${detailedMessage}`;
-                             else errorText = `API Error (400): ${detailedMessage}`;
-                         } else if (response.status === 403 && detailedMessage.includes("permission")) errorText = "Permission Denied. The API key may lack permissions for the selected model or service.";
-                         else if (response.status === 429) errorText = "Rate Limit Exceeded. Please wait and try again later.";
-                         else if (response.status >= 500) errorText = `Server Error (${response.status}). Google AI might be temporarily unavailable. Please try again later. ${detailedMessage}`;
-                         else errorText = `API Error (${response.status}): ${detailedMessage}`;
-                    } catch (e) {
-                         try { const rawText = await response.text(); errorText += ` - Server Response: ${rawText.substring(0, 300)}${rawText.length > 300 ? '...' : ''}`; } catch (e2) {}
-                    }
-                    chatHistory.pop(); // Remove failed user message
-                    renderChatHistory();
-                    throw new Error(errorText);
+                     // Handle initial fetch errors (before streaming starts)
+                     let errorText = `API Error: ${response.status} ${response.statusText}`;
+                     try {
+                         const errorData = await response.json(); // Try to parse error JSON
+                         console.error("API Error Response Body:", errorData);
+                         if (errorData?.error?.message) errorText += ` - ${errorData.error.message}`;
+                         if (response.status === 400 && errorText.includes("API key not valid")) errorText = "API Key not valid. Please check your key.";
+                         // Add more specific initial error checks if needed
+                     } catch (e) { /* Ignore if error response isn't JSON */ }
+                     throw new Error(errorText); // Throw to be caught by outer catch
                 }
 
-                // Process Successful Response
-                const data = await response.json();
-                console.log("API Response Data:", JSON.stringify(data, null, 2));
-                let generatedText = "";
-                let finishReason = "UNKNOWN";
-                let safetyFeedback = null;
-                let tokenUsage = data.usageMetadata;
-                let modelMessage = null;
-                let blockReason = null;
+                // --- Process the Stream ---
+                const reader = response.body
+                    .pipeThrough(new TextDecoderStream())
+                    .getReader();
 
-                if (data.candidates && data.candidates.length > 0) {
-                     const candidate = data.candidates[0];
-                     finishReason = candidate.finishReason || "UNKNOWN";
-                     if (candidate.content?.parts?.length > 0 && candidate.content.role === 'model') {
-                         modelMessage = { role: 'model', parts: candidate.content.parts };
-                         generatedText = candidate.content.parts.map(part => part.text || '').join('');
-                     } else if (finishReason === 'STOP' || finishReason === 'MAX_TOKENS') {
-                         generatedText = `[Model finished (${finishReason}) but returned no text content]`;
-                         modelMessage = { role: 'model', parts: [{ text: generatedText }] };
-                     }
-                     if (candidate.safetyRatings) safetyFeedback = candidate.safetyRatings;
-                 }
+                let buffer = '';
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        console.log("Stream finished.");
+                        break; // Exit the loop when the stream is done
+                    }
 
-                 if (data.promptFeedback?.blockReason) {
-                    blockReason = data.promptFeedback.blockReason;
-                    finishReason = `PROMPT_BLOCKED (${blockReason})`;
-                    if (!safetyFeedback && data.promptFeedback.safetyRatings) safetyFeedback = data.promptFeedback.safetyRatings;
-                    chatHistory.pop(); // Remove blocked user message
-                 }
+                    buffer += value;
+                    // Process buffer line by line for SSE events
+                    let lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep potential incomplete last line in buffer
 
-                 console.log(`Effective Finish Reason: ${finishReason}`);
-                 if (tokenUsage) console.log(`Token Usage: ${JSON.stringify(tokenUsage)}`);
+                    for (const line of lines) {
+                         if (line.startsWith('data:')) {
+                             const jsonStr = line.substring(5).trim();
+                             if (jsonStr) {
+                                 try {
+                                     const chunkData = JSON.parse(jsonStr);
+                                     //console.log("Stream Chunk:", chunkData); // Very verbose
 
-                 // Display Logic
-                 if (modelMessage && finishReason !== 'PROMPT_BLOCKED') {
-                     chatHistory.push(modelMessage);
-                     renderChatHistory();
-                     scrollToBottom();
-                     let statusMessage = `Response received. Finish: ${finishReason}.`;
-                     if (tokenUsage) statusMessage += ` Tokens: ${tokenUsage.promptTokenCount||'?'} prompt, ${tokenUsage.candidatesTokenCount||'?'} response, ${tokenUsage.totalTokenCount||'?'} total.`;
-                     let isWarning = finishReason === 'MAX_TOKENS' || ['SAFETY', 'RECITATION', 'OTHER', 'UNKNOWN'].includes(finishReason);
-                     let isError = false; // None currently treated as hard error here
-                     showStatus(statusMessage, isError, isWarning);
-                 } else {
-                     let errorMessage = `No valid response received. Finish Reason: ${finishReason}.`;
-                      if (finishReason.startsWith('PROMPT_BLOCKED')) errorMessage = `Your message/file was blocked by the API. Reason: ${blockReason || 'Safety Filter/Other'}.`;
-                      else if (finishReason === 'SAFETY' && !modelMessage) errorMessage = `Model response blocked for safety. Reason: ${finishReason}.`;
-                      else if (finishReason === 'RECITATION' && !modelMessage) errorMessage = `Model response blocked due to potential recitation.`;
-                      else errorMessage = `Received empty or invalid response structure. Finish Reason: ${finishReason}. Check console.`;
-                     showStatus(errorMessage, true);
-                     renderChatHistory();
-                 }
+                                     // Check for prompt feedback (blocking the *input*)
+                                     if (chunkData.promptFeedback?.blockReason) {
+                                         blocked = true;
+                                         blockReason = chunkData.promptFeedback.blockReason;
+                                         console.error(`Prompt blocked during stream: ${blockReason}`);
+                                         finalFinishReason = `PROMPT_BLOCKED (${blockReason})`;
+                                         // Remove the user message that caused the block from history
+                                         chatHistory.pop();
+                                         // Display error immediately
+                                         showStatus(`Error: Your message/file was blocked. Reason: ${blockReason}`, true);
+                                         // Remove the placeholder bubble
+                                         streamingModelBubble.remove();
+                                         reader.cancel(); // Stop reading the stream
+                                         break; // Exit inner loop
+                                     }
+
+                                     // Extract text content from candidate
+                                     if (chunkData.candidates && chunkData.candidates.length > 0) {
+                                        const candidate = chunkData.candidates[0];
+                                        const textPart = candidate.content?.parts?.[0]?.text;
+                                        if (textPart) {
+                                            fullResponseText += textPart;
+                                            // Append raw text for now, render fully at the end
+                                            appendStreamChunk(streamingModelBubble, textPart);
+                                            scrollToBottom();
+                                        }
+                                        // Update final finish reason and token usage if available in the last chunk
+                                        if(candidate.finishReason) {
+                                            finalFinishReason = candidate.finishReason;
+                                        }
+                                        if(candidate.safetyRatings?.some(r => r.blocked)) {
+                                            console.warn("Response potentially blocked by safety settings during stream.");
+                                             // Potentially update UI or status here if needed immediately
+                                        }
+                                     }
+                                     // Store final token usage if present
+                                     if (chunkData.usageMetadata) {
+                                         finalTokenUsage = chunkData.usageMetadata;
+                                     }
+
+                                 } catch (e) {
+                                     console.error("Error parsing stream JSON chunk:", e, "Chunk:", jsonStr);
+                                     // Decide how to handle parse errors, maybe show a warning
+                                 }
+                             }
+                         }
+                    }
+                    if (blocked) break; // Exit outer loop if prompt was blocked
+                } // end while(true) loop
 
             } catch (error) {
-                console.error("API Call Failed:", error);
-                 showStatus(`Error: ${error.message || 'An unknown network or API error occurred.'}`, true);
-                 renderChatHistory();
-            } finally {
-                showLoading(false);
-                promptInput.focus();
-                if (selectedFile) { // Defensive check
-                    console.warn("Resetting file input in finally block.");
-                    resetFileInput();
+                console.error("API Stream Call Failed:", error);
+                fetchError = error; // Store error to handle in finally
+                // Remove placeholder bubble on fetch error
+                if (streamingModelBubble.parentNode) {
+                     streamingModelBubble.remove();
                 }
+                // Remove the user message if the *fetch itself* failed
+                // Consider if this is always the correct action
+                // if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
+                   // chatHistory.pop();
+                // }
+            } finally {
+                showLoading(false); // Stop loading indicator regardless of outcome
+
+                if (blocked) {
+                    // Error status already set, history adjusted, bubble removed.
+                    renderChatHistory(); // Re-render without the blocked user message & placeholder
+                } else if (fetchError) {
+                    // Fetch failed before streaming or during setup
+                    showStatus(`Error: ${fetchError.message || 'Failed to connect or stream response.'}`, true);
+                    renderChatHistory(); // Re-render without placeholder
+                } else {
+                    // --- Stream finished successfully (or with content blocking) ---
+                    console.log("Finalizing streamed response. Finish Reason:", finalFinishReason);
+                    if (finalTokenUsage) console.log("Final Token Usage:", finalTokenUsage);
+
+                    // Update the final model message for history
+                    finalModelMessage.parts = [{ text: fullResponseText }];
+                    chatHistory.push(finalModelMessage);
+
+                    // Final Render in the placeholder bubble
+                    finalizeStreamedBubble(streamingModelBubble, fullResponseText);
+                    scrollToBottom(); // Ensure final view is correct
+
+                    // Update status based on final outcome
+                    let statusMessage = `Response complete. Finish: ${finalFinishReason}.`;
+                    if (finalTokenUsage) statusMessage += ` Tokens: ${finalTokenUsage.promptTokenCount||'?'} prompt, ${finalTokenUsage.candidatesTokenCount||'?'} response, ${finalTokenUsage.totalTokenCount||'?'} total.`;
+                    let isWarning = finalFinishReason === 'MAX_TOKENS' || ['SAFETY', 'RECITATION', 'OTHER', 'UNKNOWN'].includes(finalFinishReason);
+                    let isError = false; // Only prompt blocking is treated as hard error above
+
+                    // Handle case where model finishes but gives no text (e.g., safety block on *output*)
+                    if (!fullResponseText && (finalFinishReason === 'SAFETY' || finalFinishReason === 'RECITATION')) {
+                        statusMessage = `Model response blocked. Reason: ${finalFinishReason}.`;
+                        isWarning = true; // Treat as warning, bubble might be empty or show placeholder
+                        streamingModelBubble.innerHTML = `<i>[Response blocked: ${finalFinishReason}]</i>`; // Update bubble content
+                    } else if (!fullResponseText && finalFinishReason === 'STOP') {
+                        statusMessage = `Model finished (${finalFinishReason}) but returned no text.`;
+                         isWarning = true;
+                         streamingModelBubble.innerHTML = `<i>[Empty Response]</i>`;
+                    }
+
+                    showStatus(statusMessage, isError, isWarning);
+                }
+
+                // Re-enable buttons (handled by showLoading(false))
+                promptInput.focus();
             }
         }
+
+        // --- Helper Function to Append Stream Chunks ---
+        function appendStreamChunk(bubbleElement, textChunk) {
+            // Simple text appending - remove initial placeholder if present
+            const placeholder = bubbleElement.querySelector('.streaming-indicator');
+            if (placeholder) placeholder.remove();
+
+            // Append raw text. Escape HTML entities to prevent XSS if textChunk could contain HTML
+            // For Markdown, we want the raw characters, so DON'T escape here.
+            // We rely on marked.parse at the end to handle rendering safely.
+            bubbleElement.appendChild(document.createTextNode(textChunk));
+        }
+
+        // --- Helper Function to Finalize Bubble Content ---
+        function finalizeStreamedBubble(bubbleElement, fullText) {
+            bubbleElement.classList.remove('streaming'); // Remove streaming state class
+
+            try {
+                const rawHtml = marked.parse(fullText || "[Empty Model Response]");
+                bubbleElement.innerHTML = rawHtml; // Replace content with fully rendered HTML
+
+                // Add Copy/Download buttons after final render
+                requestAnimationFrame(() => { // Ensure DOM is updated
+                    const preBlocks = bubbleElement.querySelectorAll('pre');
+                    preBlocks.forEach(pre => {
+                        if (pre.querySelector('.copy-code-button')) return;
+
+                        const codeElement = pre.querySelector('code');
+                        if (!codeElement) {
+                           console.warn("Could not find <code> element inside <pre> after finalizing stream. Skipping button add.");
+                           return;
+                        }
+
+                        // Create Copy Button
+                        const copyButton = document.createElement('button');
+                        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
+                        copyButton.className = 'code-action-button copy-code-button';
+                        copyButton.title = 'Copy code to clipboard';
+                        copyButton.setAttribute('aria-label', 'Copy code block');
+
+                        // Create Download Button
+                        const downloadButton = document.createElement('button');
+                        downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Save`;
+                        downloadButton.className = 'code-action-button download-code-button';
+                        downloadButton.title = 'Download code block as file';
+                        downloadButton.setAttribute('aria-label', 'Download code block');
+
+                        pre.appendChild(downloadButton);
+                        pre.appendChild(copyButton);
+
+                        if (!codeElement.classList.contains('hljs')) {
+                            hljs.highlightElement(codeElement);
+                        }
+                    });
+                });
+            } catch (e) {
+                console.error("Markdown parsing/rendering error during finalization:", e);
+                 // Fallback: Display raw text safely
+                 bubbleElement.textContent = fullText || "[Error rendering final response]";
+            }
+        }
+
 
         // --- UI Update Functions ---
         function showLoading(isLoading) {
              const currentStatusText = statusDiv.querySelector('span')?.textContent || '';
              const isError = statusDiv.classList.contains('error');
              const isWarning = statusDiv.classList.contains('warning');
-             const isLoadingMessage = /Processing|Loading|Reading/.test(currentStatusText); // Check for loading words
+             // Adjust regex to also include "Generating"
+             const isLoadingMessage = /Processing|Loading|Reading|Generating/.test(currentStatusText);
 
              if (isLoading) {
-                 if (!isLoadingMessage) {
-                    statusDiv.innerHTML = `<div class="loader"></div><span>Processing request...</span>`;
-                    if (isError) statusDiv.classList.add('error');
-                    if (isWarning) statusDiv.classList.add('warning');
+                 // Don't overwrite status if it's already showing an error/warning unless forcing a new loading message
+                 if (!isLoadingMessage || statusDiv.innerHTML.includes("Generating response...")) { // Allow "Generating..." to override previous non-error/warning states
+                     let currentClasses = '';
+                     if (isError) currentClasses += ' error';
+                     if (isWarning) currentClasses += ' warning';
+                     // Set status only if not already showing error/warning, or if specifically setting "Generating..."
+                     if ( (!isError && !isWarning) || currentStatusText === "Generating response..." ) {
+                        statusDiv.innerHTML = `<div class="loader"></div><span>${statusDiv.innerHTML.includes("Generating response...") ? currentStatusText : 'Processing request...'}</span>`;
+                        statusDiv.className = currentClasses.trim(); // Re-apply classes
+                     } else if (!statusDiv.querySelector('.loader')) {
+                         // Add loader if missing but keep existing error/warning message
+                         statusDiv.insertAdjacentHTML('afterbegin', '<div class="loader"></div>');
+                     }
                  } else if (!statusDiv.querySelector('.loader')) {
+                     // Add loader if missing but it's already showing a loading message
                      statusDiv.insertAdjacentHTML('afterbegin', '<div class="loader"></div>');
                  }
                  sendButton.disabled = true;
-                 promptInput.disabled = true;
+                 // Don't disable prompt input during streaming
+                 // promptInput.disabled = true;
                  uploadButton.disabled = true;
              } else {
                  const loader = statusDiv.querySelector('.loader');
                  if (loader) loader.remove();
                  const statusSpan = statusDiv.querySelector('span');
-                 if (statusSpan && isLoadingMessage) {
-                    const newStatus = statusSpan.textContent;
-                     if (/Processing|Loading|Reading/.test(newStatus)) { // If it's still a loading message
-                        statusDiv.innerHTML = ''; // Clear it
+                 if (statusSpan) {
+                     const newStatus = statusSpan.textContent;
+                     // Clear status only if it was a standard loading/generating message
+                     if (/Processing request...|Generating response...|Reading file.../.test(newStatus)) {
+                         // Don't clear if it finished with a warning/error status
+                         if (!statusDiv.classList.contains('error') && !statusDiv.classList.contains('warning')) {
+                            statusDiv.innerHTML = ''; // Clear it completely
+                         }
                      }
                  }
                  const apiKeyPresent = apiKeyInput.value.trim().length > 0;
                  const modelSelected = modelSelect.value && modelSelect.value.length > 0;
                  sendButton.disabled = !(apiKeyPresent && modelSelected);
-                 promptInput.disabled = false;
+                 // promptInput.disabled = false; // Keep enabled
                  uploadButton.disabled = (fileNameDisplay.textContent.startsWith('Reading:'));
              }
          }
 
         function showStatus(message, isError = false, isWarning = false) {
              const loaderElement = statusDiv.querySelector('.loader');
-             const loaderHtml = loaderElement ? loaderElement.outerHTML : '';
-             statusDiv.classList.remove('error', 'warning');
-             statusDiv.innerHTML = `${loaderHtml}<span>${escapeHtml(message)}</span>`; // Escape status message
+             const loaderHtml = loaderElement ? loaderElement.outerHTML : ''; // Preserve loader if present
+             statusDiv.classList.remove('error', 'warning'); // Reset classes
+             statusDiv.innerHTML = `${loaderHtml}<span>${escapeHtml(message)}</span>`; // Set new message
              if (isError) statusDiv.classList.add('error');
              else if (isWarning) statusDiv.classList.add('warning');
          }
 
          function renderChatHistory() {
-            chatContainer.innerHTML = '';
-            if (chatHistory.length === 0) {
+            chatContainer.innerHTML = ''; // Clear container
+            if (chatHistory.length === 0 && !document.querySelector('.chat-bubble.streaming')) { // Also check for active stream placeholder
                 chatContainer.innerHTML = '<div class="chat-placeholder">Conversation will appear here...</div>';
                 return;
             }
 
             chatHistory.forEach(message => {
                  if (!message || !message.role || !message.parts) {
-                     console.warn("Skipping rendering invalid message:", message);
+                     console.warn("Skipping rendering invalid message from history:", message);
                      return;
                  }
                  const bubble = document.createElement('div');
@@ -1005,11 +1258,14 @@
                  if (message.role === 'user') {
                      bubble.classList.add('user-bubble');
                      let contentHtml = '';
+                     // Handle user message parts (potentially text and file info)
                      const textPart = message.parts.find(p => p.text);
+                     const filePart = message.parts.find(p => p.inlineData);
+
                      if (textPart && textPart.text.trim()) {
-                         contentHtml += escapeHtml(textPart.text); // Directly set escaped text
+                         contentHtml += escapeHtml(textPart.text);
                      }
-                     if (message.fileInfo) {
+                     if (message.fileInfo) { // Use fileInfo stored during creation
                          bubble.classList.add('has-file');
                          const safeName = escapeHtml(message.fileInfo.name || 'Unknown File');
                          const safeType = escapeHtml(message.fileInfo.type || 'Unknown Type');
@@ -1020,34 +1276,55 @@
 
                  } else if (message.role === 'model') {
                      bubble.classList.add('model-bubble');
+                     // For history rendering, always parse the full stored text
                      const messageText = message.parts.map(part => part.text || '').join('');
                      try {
                          const rawHtml = marked.parse(messageText || "[Empty Model Response]");
                          bubble.innerHTML = rawHtml;
-                         requestAnimationFrame(() => { // Process after render
+
+                         // Add buttons immediately for history items
+                         requestAnimationFrame(() => {
                              const preBlocks = bubble.querySelectorAll('pre');
                              preBlocks.forEach(pre => {
                                  if (pre.querySelector('.copy-code-button')) return;
                                  const codeElement = pre.querySelector('code');
                                  if (!codeElement) return;
+
+                                 // Create Copy Button
                                  const copyButton = document.createElement('button');
-                                 copyButton.textContent = 'Copy';
-                                 copyButton.className = 'copy-code-button';
+                                 copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
+                                 copyButton.className = 'code-action-button copy-code-button';
                                  copyButton.title = 'Copy code to clipboard';
                                  copyButton.setAttribute('aria-label', 'Copy code block');
+
+                                 // Create Download Button
+                                 const downloadButton = document.createElement('button');
+                                 downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Save`;
+                                 downloadButton.className = 'code-action-button download-code-button';
+                                 downloadButton.title = 'Download code block as file';
+                                 downloadButton.setAttribute('aria-label', 'Download code block');
+
+                                 pre.appendChild(downloadButton);
                                  pre.appendChild(copyButton);
+
                                  if (!codeElement.classList.contains('hljs')) {
                                      hljs.highlightElement(codeElement);
                                  }
                              });
                          });
                      } catch (e) {
-                         console.error("Markdown parsing/rendering error:", e);
-                         bubble.textContent = messageText || "[Error rendering response]"; // Fallback escaped
+                         console.error("Markdown parsing/rendering error in history:", e);
+                         bubble.textContent = messageText || "[Error rendering history response]";
                      }
                  }
                  chatContainer.appendChild(bubble);
              });
+
+             // Re-append the currently streaming bubble if it exists
+             const streamingBubble = document.querySelector('.model-bubble.streaming');
+             if (streamingBubble && !chatContainer.contains(streamingBubble)) {
+                chatContainer.appendChild(streamingBubble);
+             }
          }
 
         // --- Copy Code Logic ---
@@ -1057,11 +1334,12 @@
              if (!code) return;
              const codeToCopy = code.textContent || '';
              navigator.clipboard.writeText(codeToCopy).then(() => {
-                 button.textContent = 'Copied!';
+                 button.innerHTML = 'Copied!'; // Keep icon space consistent
                  button.classList.add('copied');
                  button.style.pointerEvents = 'none';
                  setTimeout(() => {
-                     button.textContent = 'Copy';
+                     // Restore original icon + text
+                     button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
                      button.classList.remove('copied');
                      button.style.pointerEvents = 'auto';
                  }, 2000);
@@ -1070,26 +1348,89 @@
                  button.textContent = 'Error';
                  button.style.pointerEvents = 'none';
                  setTimeout(() => {
-                     button.textContent = 'Copy';
+                     button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
                      button.style.pointerEvents = 'auto';
                  }, 2000);
              });
          }
 
+         // --- Download Code Logic ---
+         function handleDownloadCodeClick(button) {
+            const pre = button.closest('pre');
+            const code = pre?.querySelector('code');
+            if (!code) return;
+
+            const codeContent = code.textContent || '';
+            let language = 'txt'; // Default extension
+
+            // Try to get language from class name (e.g., 'language-python')
+            const langClass = Array.from(code.classList).find(cls => cls.startsWith('language-'));
+            if (langClass) {
+                language = langClass.split('-')[1] || 'txt';
+                // Basic common language extension mapping (can be expanded)
+                const extMap = {
+                    'javascript': 'js',
+                    'python': 'py',
+                    'html': 'html',
+                    'css': 'css',
+                    'java': 'java',
+                    'csharp': 'cs',
+                    'cpp': 'cpp',
+                    'ruby': 'rb',
+                    'php': 'php',
+                    'swift': 'swift',
+                    'go': 'go',
+                    'rust': 'rs',
+                    'kotlin': 'kt',
+                    'bash': 'sh',
+                    'shell': 'sh',
+                    'sql': 'sql',
+                    'json': 'json',
+                    'yaml': 'yaml',
+                    'markdown': 'md',
+                    'xml': 'xml',
+                    'plaintext': 'txt'
+                 };
+                 language = extMap[language.toLowerCase()] || language; // Use mapped extension or original name
+            }
+
+            const filename = `code_block.${language}`;
+
+            try {
+                // Create a Blob (more robust than data URI for larger files, though unlikely here)
+                const blob = new Blob([codeContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+
+                // Create temporary link
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link); // Required for Firefox
+                link.click();
+
+                // Clean up
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url); // Release object URL memory
+
+            } catch (error) {
+                console.error('Failed to initiate download:', error);
+                alert('Error preparing file for download. See console for details.');
+            }
+        }
+
+
          // --- Utility Functions ---
-         function escapeHtml(unsafe) {
-             if (typeof unsafe !== 'string') return '';
-             return unsafe
-                  .replace(/&/g, "&amp;")
-                  .replace(/</g, "&lt;")
-                  .replace(/>/g, "&gt;")
-                  .replace(/"/g, "&quot;")
-                  .replace(/'/g, "&#039;");
-         }
+         // escapeHtml defined earlier near Marked config
 
         function scrollToBottom() {
             requestAnimationFrame(() => {
-                responseArea.scrollTop = responseArea.scrollHeight;
+                // Add a small delay or check scroll position to prevent jitter during rapid streaming
+                 setTimeout(() => {
+                    // Only scroll if near the bottom to allow user scrolling up
+                    if (responseArea.scrollHeight - responseArea.scrollTop - responseArea.clientHeight < 100) {
+                         responseArea.scrollTop = responseArea.scrollHeight;
+                    }
+                 }, 50); // Short delay
             });
         }
 
@@ -1097,6 +1438,11 @@
             promptInput.value = '';
             chatHistory = [];
             resetFileInput();
+            // Ensure any lingering streaming bubble is removed
+            const streamingBubble = document.querySelector('.model-bubble.streaming');
+             if (streamingBubble) {
+                 streamingBubble.remove();
+             }
             renderChatHistory();
             showStatus("");
             promptInput.focus();
