@@ -4,7 +4,7 @@ SImply open the page in a web browser, enter your key, select a model, and begin
 This should work on any operating system with a modern web browser.
 Contributions are welcome, the initial version was written by gemini pro 2.5 03-35.
 
-Key features : streaming chat, code blocks that you can copy or download, light and dark themes, chat history, source code highlighting ( some)
+# Key features : streaming chat, code blocks that you can copy or download, light and dark themes, chat history, source code highlighting, and file uploads.
 
 Go to relases, download gemini.zip, open it, and open gemini.html in a web browser.
 
