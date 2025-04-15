@@ -42,7 +42,6 @@
             --copy-button-text: var(--secondary-color);
             --copy-button-copied-bg: #28a745;
             --copy-button-copied-text: #ffffff;
-            /* NEW: Download button vars */
             --download-button-bg: rgba(108, 117, 125, 0.1);
             --download-button-hover-bg: rgba(108, 117, 125, 0.2);
             --download-button-text: var(--secondary-color);
@@ -73,7 +72,6 @@
             --copy-button-text: var(--secondary-color);
             --copy-button-copied-bg: #34c759;
             --copy-button-copied-text: #111;
-            /* NEW: Download button vars */
             --download-button-bg: rgba(160, 160, 160, 0.15);
             --download-button-hover-bg: rgba(160, 160, 160, 0.3);
             --download-button-text: var(--secondary-color);
@@ -104,7 +102,6 @@
             transition: color var(--transition-speed), border-color var(--transition-speed), background-color var(--transition-speed); /* Add transitions */
             user-select: none; /* Prevent text selection */
         }
-        /* Optional: Add hover effect */
         .theme-switcher:hover {
             background-color: var(--code-bg);
             border-color: var(--secondary-color);
@@ -113,29 +110,26 @@
         .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--secondary-color); transition: color var(--transition-speed); }
         .input-group input[type="text"], .input-group input[type="password"], .input-group input[type="number"], .input-group textarea, .input-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--input-border); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color); transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed); }
         .input-group input:focus, .input-group textarea:focus, .input-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25); }
-        /* Ensure select dropdown arrow is visible */
         .input-group select {
              appearance: none;
-             /* Default arrow color set in JS */
              background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c757d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E');
              background-repeat: no-repeat;
              background-position: right 15px center;
              background-size: .65em auto;
              padding-right: 40px;
         }
-        /* Style disabled select */
         .input-group select:disabled {
             opacity: 0.65;
             background-color: var(--code-bg);
             cursor: not-allowed;
         }
         textarea { resize: vertical; min-height: 120px; }
-        .button-group { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; /* Align items vertically */ }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
         button { padding: 12px 20px; background-color: var(--button-bg); color: var(--button-text); border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background-color var(--transition-speed), transform 0.1s ease; }
         button:hover:not(:disabled) { background-color: var(--button-hover-bg); transform: translateY(-1px); }
         button:active:not(:disabled) { transform: translateY(0px); }
         button:disabled { background-color: var(--secondary-color); cursor: not-allowed; opacity: 0.7; }
-        #clearButton, #saveChatButton, #loadChatButton { /* Apply secondary style to save/load */
+        #clearButton, #saveChatButton, #loadChatButton {
              background-color: var(--secondary-color);
         }
         #clearButton:hover:not(:disabled),
@@ -143,16 +137,15 @@
         #loadChatButton:hover:not(:disabled) {
             background-color: #5a6268;
         }
-        /* Style upload button like others */
         #uploadButton {
-            background-color: var(--secondary-color); /* Start with secondary color */
-            padding: 10px 15px; /* Slightly smaller padding */
+            background-color: var(--secondary-color);
+            padding: 10px 15px;
             font-size: 0.9rem;
         }
         #uploadButton:hover:not(:disabled) {
-            background-color: #5a6268; /* Darker secondary */
+            background-color: #5a6268;
         }
-        #fileNameDisplay { /* Style for filename */
+        #fileNameDisplay {
             margin-left: 10px;
             font-size: 0.9em;
             color: var(--secondary-color);
@@ -160,7 +153,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 200px; /* Limit width */
+            max-width: 200px;
         }
         #status { margin: 20px 0; font-weight: bold; min-height: 1.6em; display: flex; align-items: center; gap: 10px; transition: color var(--transition-speed); }
         #status.error { color: var(--error-color); }
@@ -215,16 +208,14 @@
             align-self: flex-end;
             margin-left: auto;
         }
-        /* Style user bubble containing files */
         .user-bubble.has-file {
-             /* Add subtle indication if needed */
-             /* border-left: 3px solid var(--primary-color); */
+             /* Optional: Add subtle indication if needed */
         }
-        .user-bubble .file-info { /* Style for file info in user bubble */
+        .user-bubble .file-info {
             font-size: 0.85em;
             font-style: italic;
             color: var(--secondary-color);
-            margin-top: 8px; /* Space between text and file info */
+            margin-top: 8px;
             padding-top: 5px;
             border-top: 1px dashed var(--border-color);
         }
@@ -254,21 +245,18 @@
             margin: 0.8em 0;
             transition: background-color var(--transition-speed);
             position: relative;
-            /* Increased top padding for two buttons */
             padding-top: 35px;
         }
-        /* Code within pre is now styled via hljs */
         .model-bubble pre code {
-            background-color: transparent; /* Let pre handle background */
+            background-color: transparent;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.85em;
-            color: inherit; /* Inherit color from parent/theme */
-            white-space: pre; /* Preserve whitespace */
+            color: inherit;
+            white-space: pre;
         }
 
         /* --- Code Block Buttons (Copy & Download) --- */
-        /* Common styles for buttons */
         .code-action-button {
             position: absolute;
             top: 5px;
@@ -280,21 +268,20 @@
             opacity: 0.6;
             transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             z-index: 1;
-            display: inline-flex; /* Use flex for icon alignment */
+            display: inline-flex;
             align-items: center;
-            gap: 3px; /* Space between icon and text */
+            gap: 3px;
         }
         .model-bubble pre:hover .code-action-button { opacity: 1; }
-        .code-action-button:hover { transform: translateY(-1px); } /* Subtle lift */
-        .code-action-button svg { /* Style for icons */
+        .code-action-button:hover { transform: translateY(-1px); }
+        .code-action-button svg {
             width: 1em;
             height: 1em;
             vertical-align: middle;
         }
 
-        /* Specific button styles */
         .copy-code-button {
-            right: 75px; /* Increased space from edge */
+            right: 75px;
             background-color: var(--copy-button-bg);
             color: var(--copy-button-text);
         }
@@ -303,16 +290,15 @@
              background-color: var(--copy-button-copied-bg);
              color: var(--copy-button-copied-text);
              opacity: 1;
-             border-color: transparent; /* Hide border when copied */
+             border-color: transparent;
         }
-        /* NEW: Download button styles */
         .download-code-button {
-            right: 5px; /* Position download button to the far right */
+            right: 5px;
             background-color: var(--download-button-bg);
             color: var(--download-button-text);
         }
         .download-code-button:hover { background-color: var(--download-button-hover-bg); }
-        .download-code-button.downloading { /* Optional: style while downloading */
+        .download-code-button.downloading {
             opacity: 0.7;
             cursor: default;
         }
@@ -329,31 +315,41 @@
         footer a:hover { text-decoration: underline; }
 
         /* --- Input Area --- */
-        .input-area { /* Wrap prompt and buttons */
-            margin-top: 10px; /* Add some space above the input */
+        .input-area {
+            margin-top: 10px;
         }
         .input-area .input-group {
-            margin-bottom: 10px; /* Reduce margin below textarea */
+            margin-bottom: 10px;
         }
         .input-area .button-group {
-            margin-top: 0; /* Remove margin above button group */
-            margin-bottom: 10px; /* Keep bottom margin */
+            margin-top: 0;
+            margin-bottom: 10px;
         }
 
         /* --- Streaming Styles --- */
-        /* Style for streaming indicator */
         .streaming-indicator {
             display: inline-block;
             animation: blink 1s step-start 0s infinite;
             opacity: 0.7;
-            margin-left: 2px; /* Small space */
+            margin-left: 2px;
         }
         @keyframes blink {
             50% { opacity: 0; }
         }
-        /* Optional: Subtle background pulse for the whole bubble while streaming */
         .model-bubble.streaming {
-             /* background-color: rgba(var(--primary-color-rgb), 0.05); */ /* Example subtle pulse */
+             /* Optional subtle pulse */
+        }
+
+        /* --- NEW: Token Count Styles --- */
+        .loader-small { /* Tiny loader for token count */
+            border: 2px solid var(--input-border);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
         }
 
     </style>
@@ -363,7 +359,6 @@
     <div class="container">
         <header>
             <h1>Gemini HTML</h1>
-
             <div class="theme-switcher" id="themeSwitcher" title="Switch to Dark Mode">Dark</div>
         </header>
 
@@ -379,11 +374,9 @@
             </div>
         </div>
 
-
         <div class="input-group">
              <label for="modelSelect">Select Model:</label>
              <select id="modelSelect" disabled>
-
                  <option value="" selected>-- Enter API Key to Load Models --</option>
              </select>
              <small style="display: block; margin-top: 5px; color: var(--secondary-color);">Note: File uploads work best with multimodal models like Gemini 1.5 Pro.</small>
@@ -409,7 +402,16 @@
                     <input type="number" id="topK" min="1" step="1" value="40" title="Top-k sampling parameter.">
                 </div>
             </div>
-        </details>
+        </details> <!-- Closing tag for Configuration Options details -->
+
+        <!-- NEW Token Count Display -->
+        <div id="tokenCountDisplay" style="margin-bottom: 10px; font-size: 0.9em; color: var(--secondary-color);">
+            Conversation Tokens: <span id="tokenCountValue">N/A</span>
+            <span id="tokenCountModelInfo" style="font-style: italic;"></span>
+            <span id="tokenCountLoader" style="display: none; margin-left: 5px;" class="loader-small"></span>
+        </div>
+        <!-- End NEW Token Count Display -->
+
 
         <h2>Conversation History</h2>
         <div class="response-area" id="responseArea">
@@ -420,13 +422,11 @@
 
         <div id="status"></div>
 
-
         <div class="input-area">
             <div class="input-group">
                 <label for="prompt">Your Message (Ctrl+Enter to send):</label>
                 <textarea id="prompt" rows="4" placeholder="Enter your message here... (Optional if uploading a file)"></textarea>
             </div>
-
 
             <div class="button-group">
                 <button id="uploadButton" title="Select a file to upload (image, pdf, etc.)">
@@ -440,14 +440,12 @@
                 <span id="fileNameDisplay">No file selected.</span>
             </div>
 
-
             <div class="button-group">
                 <button id="sendButton">Send</button>
                 <button id="clearButton">Clear Chat</button>
-                
                 <button id="saveChatButton" title="Save the current conversation and settings to a file">Save Chat</button>
                 <button id="loadChatButton" title="Load a previously saved conversation from a file">Load Chat</button>
-                <input type="file" id="loadChatInput" accept=".json" style="display: none;"> 
+                <input type="file" id="loadChatInput" accept=".json" style="display: none;">
             </div>
         </div>
 
@@ -486,10 +484,14 @@
                 uploadButton: document.getElementById('uploadButton'),
                 fileInput: document.getElementById('fileInput'),
                 fileNameDisplay: document.getElementById('fileNameDisplay'),
-                // NEW UI Elements
                 saveChatButton: document.getElementById('saveChatButton'),
                 loadChatButton: document.getElementById('loadChatButton'),
-                loadChatInput: document.getElementById('loadChatInput')
+                loadChatInput: document.getElementById('loadChatInput'),
+                // NEW Token Count Elements
+                tokenCountDisplay: document.getElementById('tokenCountDisplay'),
+                tokenCountValue: document.getElementById('tokenCountValue'),
+                tokenCountModelInfo: document.getElementById('tokenCountModelInfo'),
+                tokenCountLoader: document.getElementById('tokenCountLoader')
             };
 
             let modelsLoaded = false;
@@ -497,8 +499,8 @@
             let selectedFile = null;
             let apiKeyDebounceTimer;
             let resizeDebounceTimer;
+            let tokenCountDebounceTimer; // <-- Added for token count debouncing
 
-            // ... (keep escapeHtml, configureMarked functions as they are) ...
             function escapeHtml(unsafe) {
                  if (typeof unsafe !== 'string') return '';
                  return unsafe
@@ -531,9 +533,6 @@
                              const highlightedCode = this.options.highlight(code, lang);
                              const className = `hljs language-${lang}`;
                              const finalCode = (highlightedCode === escapeHtml(code)) ? highlightedCode : highlightedCode;
-                             // Check if pre and codeElement exist before trying to add buttons
-                             // This check might be too early as buttons are added after rendering
-                             // We will add buttons in addCodeActionButtons after the element is in DOM
                              return `<pre><code class="${className}">${finalCode}</code></pre>\n`;
                          }
                     }),
@@ -541,7 +540,6 @@
                     breaks: true
                 });
             }
-
 
             function setupEventListeners() {
                 ui.sendButton.addEventListener('click', handleSendPrompt);
@@ -564,12 +562,8 @@
                 ui.chatContainer.addEventListener('click', function(event) {
                      const copyButton = event.target.closest('.copy-code-button');
                      const downloadButton = event.target.closest('.download-code-button');
-
-                     if (copyButton) {
-                         handleCopyCodeClick(copyButton);
-                     } else if (downloadButton) {
-                         handleDownloadCodeClick(downloadButton);
-                     }
+                     if (copyButton) handleCopyCodeClick(copyButton);
+                     else if (downloadButton) handleDownloadCodeClick(downloadButton);
                  });
 
                 window.addEventListener('resize', () => {
@@ -577,9 +571,8 @@
                     resizeDebounceTimer = setTimeout(updateSelectArrowColor, 100);
                 });
 
-                // NEW Event Listeners
                 ui.saveChatButton.addEventListener('click', handleSaveChat);
-                ui.loadChatButton.addEventListener('click', () => ui.loadChatInput.click()); // Trigger hidden input
+                ui.loadChatButton.addEventListener('click', () => ui.loadChatInput.click());
                 ui.loadChatInput.addEventListener('change', handleLoadChatFileSelected);
             }
 
@@ -589,11 +582,10 @@
                     showStatus("Nothing to save.", false, true);
                     return;
                 }
-
                 showStatus("Saving chat...", false);
                 try {
                     const stateToSave = {
-                        apiKey: ui.rememberApiKeyCheckbox.checked ? ui.apiKeyInput.value : null, // Only save if remembered
+                        apiKey: ui.rememberApiKeyCheckbox.checked ? ui.apiKeyInput.value : null,
                         model: ui.modelSelect.value,
                         history: chatHistory,
                         config: {
@@ -603,37 +595,21 @@
                             topK: parseInt(ui.topKInput.value, 10)
                         },
                         theme: document.documentElement.getAttribute('data-theme') || 'light'
-                        // Note: We don't save 'selectedFile' as it's transient.
-                        // We also don't explicitly save 'rememberApiKey' state, as we check the checkbox on load.
                     };
-
-                    // Clean history for saving: remove non-serializable parts if any were added accidentally
-                    // (In this case, fileInfo is okay, but good practice if more complex objects were added)
-                    stateToSave.history = stateToSave.history.map(msg => {
-                        // Example: remove a transient runtime property if it existed
-                        // const { runtimeProperty, ...rest } = msg;
-                        // return rest;
-                        return msg; // Current history structure is fine for JSON
-                    });
-
-
-                    const jsonString = JSON.stringify(stateToSave, null, 2); // Pretty print JSON
+                    stateToSave.history = stateToSave.history.map(msg => msg); // Simple clone for now
+                    const jsonString = JSON.stringify(stateToSave, null, 2);
                     const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
-
                     const now = new Date();
                     const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
                     const filename = `gemini-chat-${timestamp}.json`;
-
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = filename;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    URL.revokeObjectURL(link.href); // Clean up
-
+                    URL.revokeObjectURL(link.href);
                     showStatus("Chat saved successfully.", false);
-
                 } catch (error) {
                     console.error("Error saving chat:", error);
                     showStatus(`Error saving chat: ${error.message}`, true);
@@ -643,142 +619,88 @@
             // --- Load Chat Logic ---
             function handleLoadChatFileSelected(event) {
                 const file = event.target.files[0];
-                if (!file) {
-                    return; // No file selected
-                }
-
+                if (!file) return;
                 if (!file.name.endsWith('.json')) {
                      showStatus("Error: Please select a valid .json chat file.", true);
-                     ui.loadChatInput.value = ''; // Reset input
-                     return;
+                     ui.loadChatInput.value = ''; return;
                 }
-
                 showStatus(`Loading chat from ${file.name}...`, false);
-                ui.loadChatButton.disabled = true; // Disable button while loading
-
+                ui.loadChatButton.disabled = true;
                 const reader = new FileReader();
-
                 reader.onload = async (e) => {
                     try {
                         const fileContent = e.target.result;
                         const loadedState = JSON.parse(fileContent);
-
-                        // Basic validation
                         if (!loadedState || typeof loadedState !== 'object' || !Array.isArray(loadedState.history) || !loadedState.model || !loadedState.config) {
                             throw new Error("Invalid chat file format. Missing required fields.");
                         }
-
-                        // --- Apply Loaded State ---
-
-                        // 1. Clear current state (except potentially API key if not loaded)
                         chatHistory = [];
                         ui.promptInput.value = '';
-                        resetFileInput(); // Clear any pending file prompt uploads
-
-                        // 2. API Key
-                        let keyToUse = ui.apiKeyInput.value; // Keep current key by default
+                        resetFileInput();
+                        let keyToUse = ui.apiKeyInput.value;
                         if (loadedState.apiKey) {
-                             // Only load API key if it was present in the file
                             console.warn("Loading API Key from file. Ensure this is intended.");
                             ui.apiKeyInput.value = loadedState.apiKey;
                             keyToUse = loadedState.apiKey;
-                            // Do NOT automatically check "Remember Key". User must do this explicitly.
-                            // ui.rememberApiKeyCheckbox.checked = true; // Avoid this
-                            handleRememberKeyChange(); // Update local storage if 'Remember' IS checked
-                        } else if (!ui.rememberApiKeyCheckbox.checked) {
-                            // If the file doesn't have a key AND we are not remembering one, clear the input
-                            // ui.apiKeyInput.value = ''; // Let's keep the current one unless file explicitly clears it? Debatable. Let's keep it.
-                            // keyToUse = '';
+                            handleRememberKeyChange();
                         }
-
-                        // 3. Fetch Models if Key Changed or Models Not Loaded
                          if (keyToUse && (!modelsLoaded || ui.modelSelect.disabled)) {
                              showStatus("Loading models for the loaded API key...", false);
-                             await fetchModels(); // Wait for models to load based on potentially new key
-                             if (!modelsLoaded) {
-                                 // Check if fetchModels already set an error status
-                                 if (!ui.statusDiv.classList.contains('error')) {
-                                    throw new Error("Failed to load models for the API key found in the chat file.");
-                                 } else {
-                                     // Error handled by fetchModels, just stop loading process here
-                                     return;
-                                 }
-                             }
+                             await fetchModels();
+                             if (!modelsLoaded && !ui.statusDiv.classList.contains('error')) {
+                                 throw new Error("Failed to load models for the API key found in the chat file.");
+                             } else if (!modelsLoaded) { return; } // Error handled by fetchModels
                          } else if (!keyToUse) {
                              updateModelDropdown([], "-- Enter API Key to Load Models --");
                              modelsLoaded = false;
                          }
-
-
-                        // 4. Model Selection (Attempt AFTER models are loaded)
                         const modelFound = Array.from(ui.modelSelect.options).some(opt => opt.value === loadedState.model);
                         if (modelFound && loadedState.model) {
                             ui.modelSelect.value = loadedState.model;
-                            handleModelSelectionChange(); // Update footer text
                         } else if (loadedState.model) {
-                            console.warn(`Saved model "${loadedState.model}" not found in current list. Select manually.`);
-                             showStatus(`Warning: Saved model "${loadedState.model.split('/').pop()}" not found. Please select a model.`, false, true);
-                             // Select the placeholder
-                             ui.modelSelect.selectedIndex = 0;
-                             handleModelSelectionChange();
-                        } else {
-                            // No model was saved or available - select placeholder
+                            console.warn(`Saved model "${loadedState.model}" not found. Select manually.`);
+                            showStatus(`Warning: Saved model "${loadedState.model.split('/').pop()}" not found. Please select a model.`, false, true);
                             ui.modelSelect.selectedIndex = 0;
-                            handleModelSelectionChange();
+                        } else {
+                            ui.modelSelect.selectedIndex = 0;
                         }
-
-
-                        // 5. Configuration
+                        handleModelSelectionChange(); // Update footer/token count even if model not found
                         if (loadedState.config) {
                             ui.temperatureInput.value = loadedState.config.temperature ?? 0.7;
                             ui.maxTokensInput.value = loadedState.config.maxTokens ?? 8192;
                             ui.topPInput.value = loadedState.config.topP ?? 0.95;
                             ui.topKInput.value = loadedState.config.topK ?? 40;
                         }
-
-                        // 6. Theme
-                        if (loadedState.theme) {
-                            setTheme(loadedState.theme);
-                        }
-
-                        // 7. Chat History (Assign AFTER potentially clearing)
-                        // Perform a basic sanity check on history items
+                        if (loadedState.theme) setTheme(loadedState.theme);
                         chatHistory = loadedState.history.filter(msg => msg && msg.role && msg.parts);
-                        if (chatHistory.length !== loadedState.history.length) {
-                            console.warn("Some messages in the loaded history were invalid and skipped.");
-                        }
+                        if (chatHistory.length !== loadedState.history.length) console.warn("Some invalid messages skipped from loaded history.");
 
-                        // 8. Render
+                        // Render & Update Count
                         renderChatHistory();
                         scrollToBottom();
+                        updateTokenCount(); // <<< Call updateTokenCount AFTER history is loaded
 
                         showStatus(`Chat loaded successfully from ${file.name}.`, false);
-
                     } catch (error) {
                         console.error("Error loading or parsing chat file:", error);
                         showStatus(`Error loading chat: ${error.message}`, true);
-                         // Attempt to restore a sensible default state? Or leave as is? Leave as is.
-                         renderChatHistory(); // Re-render potentially empty history if load failed mid-way
+                        renderChatHistory(); // Re-render
+                        updateTokenCount(); // <<< Call updateTokenCount on error too
                     } finally {
-                        // Reset the file input regardless of success/failure
                         ui.loadChatInput.value = '';
-                        ui.loadChatButton.disabled = false; // Re-enable button
+                        ui.loadChatButton.disabled = false;
                         ui.promptInput.focus();
                     }
                 };
-
                 reader.onerror = (e) => {
                     console.error("FileReader error:", e);
                     showStatus(`Error reading file: ${reader.error?.message || 'Unknown error'}`, true);
                     ui.loadChatInput.value = '';
                     ui.loadChatButton.disabled = false;
                 };
-
-                reader.readAsText(file); // Read the file content as text
+                reader.readAsText(file);
             }
 
-
-            // ... (keep fetchModels, updateModelDropdown, handleModelSelectionChange functions as they are) ...
             async function fetchModels() {
                 const apiKey = ui.apiKeyInput.value.trim();
                 if (!apiKey) {
@@ -786,120 +708,77 @@
                     modelsLoaded = false;
                     return;
                 }
-
-                // Add check to prevent multiple simultaneous fetches
                 const loadingOption = ui.modelSelect.options[0];
-                if (ui.modelSelect.disabled && loadingOption && loadingOption.text === "Loading...") {
-                     console.log("Model fetch already in progress.");
-                     return;
-                }
-
+                if (ui.modelSelect.disabled && loadingOption && loadingOption.text === "Loading...") return;
                 modelsLoaded = false;
                 updateModelDropdown([], "Loading...");
                 ui.modelSelect.disabled = true;
-                 // Avoid overwriting "Loading chat..." status
-                 if (!ui.statusDiv.textContent.includes('Loading chat')) {
-                    showStatus("Loading available models...", false);
-                }
-
-
+                 if (!ui.statusDiv.textContent.includes('Loading chat')) showStatus("Loading available models...", false);
                 const listModelsUrl = `${API_ENDPOINT_BASE}models?key=${apiKey}`;
-
                 try {
                     const response = await fetch(listModelsUrl);
                     if (!response.ok) {
                         let errorText = `Failed to list models: ${response.status} ${response.statusText}`;
-                         try {
-                            const errorData = await response.json();
-                            if (response.status === 400 && errorData?.error?.message.includes("API key not valid")) {
-                                errorText = "API Key not valid. Please check your key.";
-                            } else if (response.status === 403 && errorData?.error?.message.includes("permission")) {
-                                 errorText = "Permission denied. Check API key permissions.";
-                            } else {
-                                errorText += ` - ${errorData?.error?.message || 'No details'}`;
-                            }
-                        } catch(e) { /* ignore */ }
+                         try { const errorData = await response.json(); /* Extract more detail */ } catch(e) { /* ignore */ }
                         throw new Error(errorText);
                     }
-
                     const data = await response.json();
                     const compatibleModels = (data.models || [])
                         .filter(model => model.name.startsWith('models/') && model.supportedGenerationMethods?.includes('generateContent'))
                         .sort((a, b) => (a.displayName || a.name).localeCompare(b.displayName || b.name));
-
                     if (compatibleModels.length > 0) {
                         updateModelDropdown(compatibleModels);
-                        // Don't overwrite status if it's showing a loading message from loadChat
-                        if (!ui.statusDiv.textContent.includes('Loading chat')) {
-                            showStatus("Models loaded successfully.", false);
-                        }
+                        if (!ui.statusDiv.textContent.includes('Loading chat')) showStatus("Models loaded successfully.", false);
                         modelsLoaded = true;
                      } else {
                          updateModelDropdown([], "No compatible models found.");
-                         showStatus("No compatible (generateContent) models found for this API key.", true, true);
+                         showStatus("No compatible (generateContent) models found.", true, true);
                          modelsLoaded = false;
                      }
-
                 } catch (error) {
                     console.error("Fetch Models Error:", error);
-                    const displayError = error.message || "An unknown error occurred loading models.";
+                    const displayError = error.message || "Unknown error loading models.";
                     showStatus(`Error: ${displayError}`, true);
                     updateModelDropdown([], "Error loading models. Check Key/Console.");
-                     modelsLoaded = false;
-                     ui.modelSelect.disabled = true; // Ensure disabled on error
+                    modelsLoaded = false;
+                    ui.modelSelect.disabled = true;
                 }
             }
 
              function updateModelDropdown(models, placeholderText = "-- Select a Model --") {
-                const previouslySelectedValue = ui.modelSelect.value; // Remember selection if possible
+                const previouslySelectedValue = ui.modelSelect.value;
                 ui.modelSelect.innerHTML = '';
                 const placeholderOption = document.createElement('option');
                 placeholderOption.value = "";
                 placeholderOption.textContent = placeholderText;
                 placeholderOption.disabled = true;
-                // Select placeholder initially unless preferred model exists
                 placeholderOption.selected = !models.some(m => `models/${PREFERRED_MODEL}` === m.name);
                 ui.modelSelect.appendChild(placeholderOption);
-
                 let preferredModelExists = false;
                 let previousValueExists = false;
                 const preferredValue = `models/${PREFERRED_MODEL}`;
-
                 models.forEach(model => {
                     const option = document.createElement('option');
                     option.value = model.name;
-                     let displayName = model.displayName || model.name.split('/').pop();
-                     if (model.name.includes('gemini-1.5-pro')) {
-                         displayName += ' (Multimodal)';
-                     }
+                    let displayName = model.displayName || model.name.split('/').pop();
+                     if (model.name.includes('gemini-1.5-pro')) displayName += ' (Multimodal)';
                      if (model.name.includes('1.5')) displayName += '*';
                      if (model.name.includes('latest')) displayName += ' (latest)';
-
                     option.textContent = displayName;
                     ui.modelSelect.appendChild(option);
-                    if (model.name === preferredValue) {
-                        preferredModelExists = true;
-                    }
+                    if (model.name === preferredValue) preferredModelExists = true;
                     if (model.name === previouslySelectedValue) {
-                         option.selected = true; // Restore previous selection if it exists in new list
-                         previousValueExists = true;
-                         placeholderOption.selected = false; // Deselect placeholder
+                        option.selected = true;
+                        previousValueExists = true;
+                        placeholderOption.selected = false;
                     }
                 });
-
-                // If previous selection wasn't found, but preferred exists, select preferred
                  if (!previousValueExists && preferredModelExists) {
                      const preferredOption = ui.modelSelect.querySelector(`option[value="${preferredValue}"]`);
-                     if (preferredOption) {
-                        preferredOption.selected = true;
-                        placeholderOption.selected = false;
-                     }
+                     if (preferredOption) { preferredOption.selected = true; placeholderOption.selected = false; }
                  }
-
-                // If neither previous nor preferred existed, keep placeholder selected (already done)
-
-                ui.modelSelect.disabled = (models.length === 0 && placeholderText !== 'Loading...'); // Keep enabled during loading
-                handleModelSelectionChange();
+                ui.modelSelect.disabled = (models.length === 0 && placeholderText !== 'Loading...');
+                handleModelSelectionChange(); // Trigger update for footer and token count
             }
 
              function handleModelSelectionChange() {
@@ -913,10 +792,9 @@
                  } else {
                      ui.currentModelNameSpan.textContent = 'N/A';
                  }
+                 updateTokenCount(); // <<< Call updateTokenCount when model changes
             }
 
-
-            // ... (keep loadApiKey, handleRememberKeyChange, handleApiKeyInput functions as they are) ...
             function loadApiKey() {
                 const rememberedKey = localStorage.getItem('geminiApiKey');
                 const shouldRemember = localStorage.getItem('rememberGeminiApiKey') === 'true';
@@ -952,22 +830,17 @@
                  apiKeyDebounceTimer = setTimeout(() => {
                      const currentKey = ui.apiKeyInput.value.trim();
                      if (currentKey) {
-                         if (!modelsLoaded || ui.modelSelect.disabled) {
-                            fetchModels();
-                         }
+                         if (!modelsLoaded || ui.modelSelect.disabled) fetchModels();
+                         else updateTokenCount(); // If models already loaded, just update token count
                      } else {
                          updateModelDropdown([], "-- Enter API Key to Load Models --");
                          modelsLoaded = false;
                          showStatus("");
-                         // Don't clear chat history on key removal automatically anymore?
-                         // chatHistory = [];
-                         // renderChatHistory();
+                         updateTokenCount(); // Update count (will show 0 or N/A)
                      }
                  }, 500);
              }
 
-
-            // ... (keep initializeTheme, setTheme, toggleTheme, updateSelectArrowColor functions as they are) ...
             function initializeTheme() {
                 const savedTheme = localStorage.getItem('theme') || 'light';
                 setTheme(savedTheme);
@@ -996,61 +869,34 @@
                  requestAnimationFrame(() => {
                      const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
                      let colorHex = '6c757d';
-                     if (secondaryColor.startsWith('#')) {
-                        colorHex = secondaryColor.substring(1);
-                     } else {
-                        const rgbMatch = secondaryColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-                        if (rgbMatch) {
-                            colorHex = (+rgbMatch[1]).toString(16).padStart(2, '0') +
-                                       (+rgbMatch[2]).toString(16).padStart(2, '0') +
-                                       (+rgbMatch[3]).toString(16).padStart(2, '0');
-                        } else {
-                            console.warn("Could not parse secondary color for arrow:", secondaryColor);
-                        }
-                     }
+                     if (secondaryColor.startsWith('#')) { colorHex = secondaryColor.substring(1); }
+                     else { const rgbMatch = secondaryColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); if (rgbMatch) { colorHex = (+rgbMatch[1]).toString(16).padStart(2, '0') + (+rgbMatch[2]).toString(16).padStart(2, '0') + (+rgbMatch[3]).toString(16).padStart(2, '0'); } else { console.warn("Could not parse secondary color for arrow:", secondaryColor); } }
                      const svgArrow = `url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23${encodeURIComponent(colorHex)}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E')`;
                      ui.modelSelect.style.backgroundImage = svgArrow;
                 });
             }
 
-            // ... (keep handleFileSelection, resetFileInput functions as they are) ...
              function handleFileSelection(event) {
                 const file = event.target.files[0];
                 if (file) {
-                    const maxSizeMb = 50;
-                    const maxSize = maxSizeMb * 1024 * 1024;
-                    if (file.size > maxSize) {
-                        showStatus(`Error: File size (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds limit (${maxSizeMb}MB).`, true);
-                        resetFileInput();
-                        return;
-                    }
+                    const maxSizeMb = 50; const maxSize = maxSizeMb * 1024 * 1024;
+                    if (file.size > maxSize) { showStatus(`Error: File size (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds limit (${maxSizeMb}MB).`, true); resetFileInput(); return; }
                      const allowedTypes = /^image\/|^application\/pdf$|^audio\/|^video\/|^text\//;
-                     if (!allowedTypes.test(file.type)) {
-                         console.warn(`Warning: File type "${file.type}" may not be optimally processed.`);
-                     }
-
+                     if (!allowedTypes.test(file.type)) console.warn(`Warning: File type "${file.type}" may not be optimally processed.`);
                     ui.fileNameDisplay.textContent = `Reading: ${file.name}...`;
                     showStatus("Reading file...", false);
                     ui.uploadButton.disabled = true;
-
                     const reader = new FileReader();
                     reader.onloadend = function() {
                          ui.uploadButton.disabled = false;
                         if (reader.readyState === FileReader.DONE) {
                             try {
-                                 const dataUrl = reader.result;
-                                 const commaIndex = dataUrl.indexOf(',');
-                                 if (commaIndex === -1) throw new Error("Invalid Data URL format");
-                                 const base64Data = dataUrl.substring(commaIndex + 1);
-                                 const mimeMatch = dataUrl.substring(0, commaIndex).match(/:(.*?);/);
-                                 const mimeType = mimeMatch ? mimeMatch[1] : file.type || 'application/octet-stream';
-
+                                 const dataUrl = reader.result; const commaIndex = dataUrl.indexOf(','); if (commaIndex === -1) throw new Error("Invalid Data URL format"); const base64Data = dataUrl.substring(commaIndex + 1); const mimeMatch = dataUrl.substring(0, commaIndex).match(/:(.*?);/); const mimeType = mimeMatch ? mimeMatch[1] : file.type || 'application/octet-stream';
                                  selectedFile = { name: file.name, mimeType: mimeType, data: base64Data };
                                  console.log(`File selected: ${selectedFile.name}, Type: ${selectedFile.mimeType}`);
                                  ui.fileNameDisplay.textContent = `Selected: ${file.name}`;
                                  showStatus("File ready to send.", false);
-                                 // Warn if model doesn't support multimodal
-                                 handleModelSelectionChange();
+                                 handleModelSelectionChange(); // Trigger warning if model incompatible
                              } catch (e) {
                                  console.error("Error processing file reader result:", e);
                                  showStatus("Error: Could not process file data.", true);
@@ -1065,19 +911,15 @@
                         ui.uploadButton.disabled = false;
                     };
                     reader.readAsDataURL(file);
-                } else {
-                    resetFileInput();
-                }
+                } else { resetFileInput(); }
             }
 
             function resetFileInput() {
                 selectedFile = null;
-                ui.fileInput.value = ''; // Clear the specific file input
+                ui.fileInput.value = '';
                 ui.fileNameDisplay.textContent = 'No file selected.';
             }
 
-
-            // ... (keep handleSendPrompt, appendStreamChunk, finalizeStreamedBubble functions as they are) ...
             async function handleSendPrompt() {
                 const apiKey = ui.apiKeyInput.value.trim();
                 const selectedModelIdentifier = ui.modelSelect.value;
@@ -1094,7 +936,6 @@
                  const selectedOptionText = ui.modelSelect.options[ui.modelSelect.selectedIndex]?.text || '';
                  if (selectedFile && !selectedOptionText.includes('(Multimodal)') && !selectedOptionText.includes('1.5 Pro')) {
                      showStatus("Warning: Selected model likely does not support file uploads. Use Gemini 1.5 Pro or similar.", false, true);
-                     // Consider preventing send? Or let it potentially fail? Let it fail for now.
                  }
 
                 const userParts = [];
@@ -1103,21 +944,17 @@
                 if (selectedFile) {
                     userParts.push({ inlineData: { mimeType: selectedFile.mimeType, data: selectedFile.data } });
                     fileInfoForHistory = { name: selectedFile.name, type: selectedFile.mimeType };
-                    resetFileInput(); // Crucial: Clear file *after* adding to parts
+                    resetFileInput();
                 }
-
                 const userMessage = { role: 'user', parts: userParts, fileInfo: fileInfoForHistory };
-                // Ensure history doesn't grow excessively (optional limit)
-                // const MAX_HISTORY_LENGTH = 50; // Example limit (user+model pairs)
-                // if (chatHistory.length > MAX_HISTORY_LENGTH * 2) {
-                //     chatHistory = chatHistory.slice(-MAX_HISTORY_LENGTH * 2);
-                //     console.warn(`Chat history truncated to last ${MAX_HISTORY_LENGTH} exchanges.`);
-                // }
+
+                // Add user message to history
                 chatHistory.push(userMessage);
                 ui.promptInput.value = '';
                 ui.promptInput.focus();
 
                 renderChatHistory();
+                updateTokenCount(); // <<< Update token count AFTER adding user message
 
                 const streamingModelBubble = document.createElement('div');
                 streamingModelBubble.classList.add('chat-bubble', 'model-bubble', 'streaming');
@@ -1129,19 +966,11 @@
                 showStatus("Generating response...", false);
 
                  const contentsForApi = chatHistory.map(msg => {
-                     const { fileInfo, parts, ...apiMsg } = msg; // Exclude fileInfo from API call body
+                     const { fileInfo, parts, ...apiMsg } = msg;
                      return { ...apiMsg, parts: Array.isArray(parts) ? parts : (parts ? [parts] : []) };
                  });
                  const apiUrl = `${API_ENDPOINT_BASE}${selectedModelIdentifier}:streamGenerateContent?key=${apiKey}&alt=sse`;
-                 const requestBody = {
-                      contents: contentsForApi,
-                      generationConfig: { temperature, maxOutputTokens: maxTokens, topP, topK }
-                      // Add safetySettings if needed:
-                      // safetySettings: [
-                      //   { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-                      //   // ... other categories
-                      // ]
-                 };
+                 const requestBody = { contents: contentsForApi, generationConfig: { temperature, maxOutputTokens: maxTokens, topP, topK } };
 
                 let fullResponseText = "";
                 let finalModelMessage = { role: 'model', parts: [{ text: '' }] };
@@ -1158,242 +987,212 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(requestBody),
                     });
-
                     if (!response.ok) {
                          let errorText = `API Error: ${response.status} ${response.statusText}`;
-                         try {
-                             const errorData = await response.json();
-                             if (errorData?.error?.message) errorText += ` - ${errorData.error.message}`;
-                             if (response.status === 400 && errorText.includes("API key not valid")) errorText = "API Key not valid. Please check your key.";
-                              if (response.status === 400 && errorText.includes("User location is not supported")) errorText = "API Error: User location is not supported for this model/key.";
-                               if (response.status === 429) errorText = "API Error: Quota exceeded. Please check your usage limits.";
-                         } catch (e) { /* Ignore if error body isn't JSON */ }
+                         try { const errorData = await response.json(); /* Extract more detail */ } catch (e) { /* Ignore */ }
                          throw new Error(errorText);
                     }
-
-                    reader = response.body
-                        .pipeThrough(new TextDecoderStream())
-                        .getReader();
-
+                    reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
                     let buffer = '';
                     while (true) {
-                        const { value, done } = await reader.read();
-                        if (done) break;
-
-                        buffer += value;
-                        let lines = buffer.split('\n');
-                        buffer = lines.pop(); // Keep incomplete last line
-
+                        const { value, done } = await reader.read(); if (done) break;
+                        buffer += value; let lines = buffer.split('\n'); buffer = lines.pop();
                         for (const line of lines) {
                              if (line.startsWith('data:')) {
-                                 const jsonStr = line.substring(5).trim();
-                                 if (jsonStr) {
+                                 const jsonStr = line.substring(5).trim(); if (jsonStr) {
                                      try {
                                          const chunkData = JSON.parse(jsonStr);
-
                                          if (chunkData.promptFeedback?.blockReason) {
-                                             blocked = true;
-                                             blockReason = chunkData.promptFeedback.blockReason;
+                                             blocked = true; blockReason = chunkData.promptFeedback.blockReason;
                                              console.error(`Prompt blocked during stream: ${blockReason}`);
                                              finalFinishReason = `PROMPT_BLOCKED (${blockReason})`;
-                                             chatHistory.pop(); // Remove the offending user message
+                                             chatHistory.pop(); // Remove blocked user message
                                              showStatus(`Error: Your message/file was blocked. Reason: ${blockReason}`, true);
-                                             if(streamingModelBubble.parentNode) streamingModelBubble.remove(); // Remove placeholder
-                                             await reader.cancel(); // Stop reading stream
-                                             break; // Exit inner loop
+                                             if(streamingModelBubble.parentNode) streamingModelBubble.remove();
+                                             await reader.cancel(); break;
                                          }
-
                                          if (chunkData.candidates && chunkData.candidates.length > 0) {
-                                            const candidate = chunkData.candidates[0];
-                                            const textPart = candidate.content?.parts?.[0]?.text;
-                                            if (textPart) {
-                                                fullResponseText += textPart;
-                                                appendStreamChunk(streamingModelBubble, textPart);
-                                                scrollToBottom();
-                                            }
-                                            if(candidate.finishReason) {
-                                                finalFinishReason = candidate.finishReason;
-                                            }
-                                            // Check for blocked *output* content
+                                            const candidate = chunkData.candidates[0]; const textPart = candidate.content?.parts?.[0]?.text;
+                                            if (textPart) { fullResponseText += textPart; appendStreamChunk(streamingModelBubble, textPart); scrollToBottom(); }
+                                            if(candidate.finishReason) finalFinishReason = candidate.finishReason;
                                             if (candidate.finishReason === "SAFETY" || candidate.safetyRatings?.some(r => r.blocked)) {
-                                                 console.warn("Response content potentially blocked by safety settings during stream.");
-                                                 // Block reason details might be in candidate.safetyRatings
-                                                 const blockDetails = candidate.safetyRatings?.filter(r => r.blocked).map(r => r.category).join(', ') || 'Unknown Safety Reason';
-                                                 finalFinishReason = `SAFETY (${blockDetails})`; // Update finish reason for clarity
+                                                 console.warn("Response content potentially blocked."); finalFinishReason = `SAFETY (${candidate.safetyRatings?.filter(r => r.blocked).map(r => r.category).join(', ') || 'Unknown'})`;
                                              }
                                          }
-                                         if (chunkData.usageMetadata) {
-                                             finalTokenUsage = chunkData.usageMetadata;
-                                         }
-
-                                     } catch (e) {
-                                         console.error("Error parsing stream JSON chunk:", e, "Chunk:", jsonStr);
-                                         // Continue processing other chunks if possible
-                                     }
+                                         if (chunkData.usageMetadata) finalTokenUsage = chunkData.usageMetadata;
+                                     } catch (e) { console.error("Error parsing stream chunk:", e, "Chunk:", jsonStr); }
                                  }
                              }
-                        } // end for line
-                        if (blocked) break; // Exit outer loop if prompt blocked
-                    } // end while
-
+                        } if (blocked) break;
+                    }
                 } catch (error) {
                     console.error("API Stream Call Failed:", error);
                     fetchError = error;
-                    if (streamingModelBubble.parentNode) {
-                         streamingModelBubble.remove();
-                    }
+                    if (streamingModelBubble.parentNode) streamingModelBubble.remove();
                 } finally {
                     showLoading(false);
-
                     if (blocked) {
-                        // Status already set, history adjusted, bubble removed.
-                        renderChatHistory(); // Re-render without the blocked user message
+                        renderChatHistory(); // Re-render without blocked message
                     } else if (fetchError) {
                         showStatus(`Error: ${fetchError.message || 'Failed to connect or stream response.'}`, true);
-                        renderChatHistory(); // Re-render without placeholder
+                        renderChatHistory();
                     } else {
-                        // Stream finished (successfully or with content blocking)
-                        console.log("Finalizing streamed response. Finish Reason:", finalFinishReason);
+                        console.log("Finalizing stream. Finish Reason:", finalFinishReason);
                         if (finalTokenUsage) console.log("Final Token Usage:", finalTokenUsage);
-
                         finalModelMessage.parts = [{ text: fullResponseText }];
-                        // Only add non-empty model messages to history if needed,
-                        // or always add even if blocked/empty? Let's add it unless prompt was blocked.
-                        chatHistory.push(finalModelMessage);
-
-                        finalizeStreamedBubble(streamingModelBubble, fullResponseText); // Render final content
+                        chatHistory.push(finalModelMessage); // Add final model message
+                        finalizeStreamedBubble(streamingModelBubble, fullResponseText);
                         scrollToBottom();
-
                         let statusMessage = `Response complete. Finish: ${finalFinishReason}.`;
                         if (finalTokenUsage) statusMessage += ` Tokens: ${finalTokenUsage.promptTokenCount||'?'} prompt, ${finalTokenUsage.candidatesTokenCount||'?'} response, ${finalTokenUsage.totalTokenCount||'?'} total.`;
-                        let isWarning = ['MAX_TOKENS', 'SAFETY', 'RECITATION', 'OTHER', 'UNKNOWN'].includes(finalFinishReason.split(' ')[0]); // Check base reason
+                        let isWarning = ['MAX_TOKENS', 'SAFETY', 'RECITATION', 'OTHER', 'UNKNOWN'].includes(finalFinishReason.split(' ')[0]);
                         let isError = false;
-
                         if (!fullResponseText && isWarning) {
                             statusMessage = `Model response ended due to ${finalFinishReason}. No text generated.`;
-                            // Update bubble content for clarity if empty due to safety/etc.
-                            if (finalFinishReason.startsWith('SAFETY')) {
-                                 streamingModelBubble.innerHTML = `<i>[Response blocked: ${finalFinishReason}]</i>`;
-                            } else if (finalFinishReason === 'MAX_TOKENS') {
-                                 streamingModelBubble.innerHTML = `<i>[Response truncated: ${finalFinishReason}]</i>`;
-                            } else {
-                                 streamingModelBubble.innerHTML = `<i>[Empty Response: ${finalFinishReason}]</i>`;
-                            }
+                            if (finalFinishReason.startsWith('SAFETY')) streamingModelBubble.innerHTML = `<i>[Response blocked: ${finalFinishReason}]</i>`;
+                            else if (finalFinishReason === 'MAX_TOKENS') streamingModelBubble.innerHTML = `<i>[Response truncated: ${finalFinishReason}]</i>`;
+                            else streamingModelBubble.innerHTML = `<i>[Empty Response: ${finalFinishReason}]</i>`;
                         } else if (!fullResponseText && finalFinishReason === 'STOP') {
                             statusMessage = `Model finished (${finalFinishReason}) but returned no text.`;
-                            isWarning = true;
-                             streamingModelBubble.innerHTML = `<i>[Empty Response]</i>`;
+                            isWarning = true; streamingModelBubble.innerHTML = `<i>[Empty Response]</i>`;
                         }
                         showStatus(statusMessage, isError, isWarning);
                     }
+                    // Update token count regardless of success/error/block, based on final history
+                    updateTokenCount(); // <<< Update token count AFTER model response (or error)
                     ui.promptInput.focus();
                 }
-            }
+            } // End of handleSendPrompt
 
             function appendStreamChunk(bubbleElement, textChunk) {
                 const placeholder = bubbleElement.querySelector('.streaming-indicator');
                 if (placeholder) placeholder.remove();
-                // Append text node for raw text during streaming
                 bubbleElement.appendChild(document.createTextNode(textChunk));
             }
 
              function finalizeStreamedBubble(bubbleElement, fullText) {
                 bubbleElement.classList.remove('streaming');
                 try {
-                    // Use marked.parse, which calls the configured renderer including highlight.js
                     const rawHtml = marked.parse(fullText || "[Empty Model Response]");
-                    bubbleElement.innerHTML = rawHtml; // Render the full markdown content
-
-                    // Ensure buttons/highlighting are applied AFTER innerHTML is set
-                    requestAnimationFrame(() => { // Ensures DOM update before querying
-                        addCodeActionButtons(bubbleElement); // Add buttons to new code blocks
-                    });
+                    bubbleElement.innerHTML = rawHtml;
+                    requestAnimationFrame(() => addCodeActionButtons(bubbleElement));
                 } catch (e) {
-                    console.error("Markdown parsing/rendering error during finalization:", e);
-                     // Fallback: Display raw text safely
-                     bubbleElement.textContent = fullText || "[Error rendering final response]";
+                    console.error("Markdown parsing error:", e);
+                    bubbleElement.textContent = fullText || "[Error rendering response]";
                 }
             }
 
-
-            // ... (keep showLoading, showStatus functions as they are) ...
             function showLoading(isLoading) {
                  const currentStatusText = ui.statusDiv.querySelector('span')?.textContent || '';
                  const isError = ui.statusDiv.classList.contains('error');
                  const isWarning = ui.statusDiv.classList.contains('warning');
                  const isLoadingMessage = /Processing|Loading|Reading|Generating/.test(currentStatusText);
-
                  if (isLoading) {
-                     // Show loader unless there's already an error/warning we shouldn't overwrite
-                     let shouldShowLoader = true;
-                     if ((isError || isWarning) && !currentStatusText.includes("Generating response...")) {
-                        shouldShowLoader = false;
-                     }
-
-                     if (shouldShowLoader && !ui.statusDiv.querySelector('.loader')) {
-                         ui.statusDiv.insertAdjacentHTML('afterbegin', '<div class="loader"></div>');
-                     }
-                     // Update status text if needed
+                     let shouldShowLoader = !((isError || isWarning) && !currentStatusText.includes("Generating response..."));
+                     if (shouldShowLoader && !ui.statusDiv.querySelector('.loader')) ui.statusDiv.insertAdjacentHTML('afterbegin', '<div class="loader"></div>');
                      if (!isLoadingMessage || currentStatusText === "Generating response...") {
                           if ( (!isError && !isWarning) || currentStatusText === "Generating response..." ) {
                              const message = currentStatusText === "Generating response..." ? currentStatusText : 'Processing request...';
-                             // Update span content, keeping loader if present
-                             const span = ui.statusDiv.querySelector('span');
-                             if (span) span.textContent = message;
-                             else ui.statusDiv.insertAdjacentHTML('beforeend', `<span>${message}</span>`);
-
-                             ui.statusDiv.className = ''; // Clear error/warning if setting loading message
+                             const span = ui.statusDiv.querySelector('span'); if (span) span.textContent = message; else ui.statusDiv.insertAdjacentHTML('beforeend', `<span>${message}</span>`);
+                             ui.statusDiv.className = '';
                           }
                      }
-
-                     ui.sendButton.disabled = true;
-                     ui.uploadButton.disabled = true;
-                     ui.saveChatButton.disabled = true; // Disable save/load during generation
-                     ui.loadChatButton.disabled = true;
-
-                 } else { // Not loading
-                     const loader = ui.statusDiv.querySelector('.loader');
-                     if (loader) loader.remove();
+                     ui.sendButton.disabled = true; ui.uploadButton.disabled = true; ui.saveChatButton.disabled = true; ui.loadChatButton.disabled = true;
+                 } else {
+                     const loader = ui.statusDiv.querySelector('.loader'); if (loader) loader.remove();
                      const statusSpan = ui.statusDiv.querySelector('span');
-                     // Clear status ONLY if it was a generic loading message and not a final status/error/warning
                      if (statusSpan && /Processing request...|Generating response...|Reading file...|Loading chat from/.test(statusSpan.textContent)) {
-                          if (!ui.statusDiv.classList.contains('error') && !ui.statusDiv.classList.contains('warning')) {
-                             statusSpan.textContent = ''; // Clear message but keep span for potential future messages
-                             // ui.statusDiv.innerHTML = ''; // Alternative: clear completely
-                          }
+                          if (!ui.statusDiv.classList.contains('error') && !ui.statusDiv.classList.contains('warning')) statusSpan.textContent = '';
                      }
-
                      const apiKeyPresent = ui.apiKeyInput.value.trim().length > 0;
                      const modelSelected = ui.modelSelect.value && ui.modelSelect.value.length > 0;
                      ui.sendButton.disabled = !(apiKeyPresent && modelSelected);
                      ui.uploadButton.disabled = (ui.fileNameDisplay.textContent.startsWith('Reading:'));
-                     ui.saveChatButton.disabled = false; // Re-enable save/load
-                     ui.loadChatButton.disabled = false;
+                     ui.saveChatButton.disabled = false; ui.loadChatButton.disabled = false;
                  }
              }
 
             function showStatus(message, isError = false, isWarning = false) {
                  const loaderElement = ui.statusDiv.querySelector('.loader');
-                 const loaderHtml = loaderElement ? loaderElement.outerHTML : ''; // Preserve loader
+                 const loaderHtml = loaderElement ? loaderElement.outerHTML : '';
                  const span = ui.statusDiv.querySelector('span');
-
-                 ui.statusDiv.classList.remove('error', 'warning'); // Reset classes first
+                 ui.statusDiv.classList.remove('error', 'warning');
                  if (isError) ui.statusDiv.classList.add('error');
                  else if (isWarning) ui.statusDiv.classList.add('warning');
-
-                 // Update or create the span for the message
-                 if (span) {
-                    span.innerHTML = escapeHtml(message); // Use innerHTML to allow potential future simple formatting? Stick to textContent via escapeHtml for safety.
-                 } else {
-                    ui.statusDiv.innerHTML = `${loaderHtml}<span>${escapeHtml(message)}</span>`;
-                 }
-                 // Ensure loader is at the start if it exists
-                 if (loaderElement && !ui.statusDiv.firstChild?.classList?.contains('loader')) {
-                     ui.statusDiv.insertAdjacentElement('afterbegin', loaderElement);
-                 }
+                 if (span) span.innerHTML = escapeHtml(message);
+                 else ui.statusDiv.innerHTML = `${loaderHtml}<span>${escapeHtml(message)}</span>`;
+                 if (loaderElement && !ui.statusDiv.firstChild?.classList?.contains('loader')) ui.statusDiv.insertAdjacentElement('afterbegin', loaderElement);
              }
 
-            // ... (keep renderChatHistory, addCodeActionButtons functions as they are) ...
+            // --- NEW: Token Count Function ---
+            async function updateTokenCount() {
+                clearTimeout(tokenCountDebounceTimer);
+                tokenCountDebounceTimer = setTimeout(async () => {
+                    const apiKey = ui.apiKeyInput.value.trim();
+                    const selectedModelIdentifier = ui.modelSelect.value;
+                    const modelNameShort = selectedModelIdentifier ? selectedModelIdentifier.split('/').pop() : 'N/A';
+
+                    if (!apiKey || !selectedModelIdentifier || chatHistory.length === 0) {
+                        ui.tokenCountValue.textContent = chatHistory.length === 0 ? '0' : 'N/A'; // Show 0 if history is empty, N/A if key/model missing
+                        ui.tokenCountModelInfo.textContent = selectedModelIdentifier ? `(for ${modelNameShort})` : '';
+                        ui.tokenCountLoader.style.display = 'none';
+                        return;
+                    }
+
+                    ui.tokenCountLoader.style.display = 'inline-block';
+                    ui.tokenCountValue.textContent = '...';
+                    ui.tokenCountModelInfo.textContent = `(calculating for ${modelNameShort}...)`;
+
+                    const contentsForApi = chatHistory.map(msg => {
+                        const { fileInfo, ...apiMsg } = msg;
+                        return { ...apiMsg, parts: Array.isArray(msg.parts) ? msg.parts : (msg.parts ? [msg.parts] : []) };
+                    }).filter(msg => msg.parts && msg.parts.length > 0);
+
+                    if (contentsForApi.length === 0) {
+                        ui.tokenCountValue.textContent = '0';
+                        ui.tokenCountModelInfo.textContent = `(for ${modelNameShort})`;
+                        ui.tokenCountLoader.style.display = 'none';
+                        return;
+                    }
+
+                    const countTokensUrl = `${API_ENDPOINT_BASE}${selectedModelIdentifier}:countTokens?key=${apiKey}`;
+
+                    try {
+                        const response = await fetch(countTokensUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: contentsForApi }),
+                        });
+
+                        if (!response.ok) {
+                             let errorText = `API Error ${response.status}`;
+                             try { const errorData = await response.json(); if (errorData?.error?.message) errorText += `: ${errorData.error.message}`; } catch(e) { /* ignore */ }
+                             // Specific error for countTokens on incompatible models
+                             if (errorText.includes("does not support") && errorText.includes("countTokens")) {
+                                 errorText = "Model doesn't support token counting";
+                             }
+                            throw new Error(errorText);
+                        }
+
+                        const data = await response.json();
+                        if (typeof data.totalTokens === 'number') {
+                            ui.tokenCountValue.textContent = data.totalTokens;
+                            ui.tokenCountModelInfo.textContent = `(for ${modelNameShort})`;
+                        } else {
+                            throw new Error("Invalid response format from countTokens API.");
+                        }
+
+                    } catch (error) {
+                        console.error("Token Count Error:", error);
+                        ui.tokenCountValue.textContent = 'Error';
+                        ui.tokenCountModelInfo.textContent = `(${escapeHtml(error.message)})`; // Escape error message
+                    } finally {
+                        ui.tokenCountLoader.style.display = 'none';
+                    }
+                }, 300); // Debounce API call slightly
+            }
+
+
              function renderChatHistory() {
                 ui.chatContainer.innerHTML = '';
                 if (chatHistory.length === 0 && !document.querySelector('.chat-bubble.streaming')) {
@@ -1402,217 +1201,105 @@
                 }
 
                 chatHistory.forEach(message => {
-                     if (!message || !message.role || !message.parts) {
-                         console.warn("Skipping rendering invalid message from history:", message);
-                         return;
-                     }
+                     if (!message || !message.role || !message.parts) { console.warn("Skipping rendering invalid message:", message); return; }
                      const bubble = document.createElement('div');
                      bubble.classList.add('chat-bubble');
-
                      if (message.role === 'user') {
                          bubble.classList.add('user-bubble');
-                         let contentHtml = '';
-                         const textPart = message.parts.find(p => p.text);
-                         // const filePart = message.parts.find(p => p.inlineData); // Data not rendered visually here
-
-                         if (textPart && textPart.text.trim()) {
-                             // Render user text safely
-                             contentHtml += escapeHtml(textPart.text).replace(/\n/g, '<br>'); // Basic newline handling for user input
-                         }
-                         // Use stored fileInfo if available
+                         let contentHtml = ''; const textPart = message.parts.find(p => p.text);
+                         if (textPart && textPart.text.trim()) contentHtml += escapeHtml(textPart.text).replace(/\n/g, '<br>');
                          if (message.fileInfo) {
-                             bubble.classList.add('has-file');
-                             const safeName = escapeHtml(message.fileInfo.name || 'Unknown File');
-                             const safeType = escapeHtml(message.fileInfo.type || 'Unknown Type');
-                             const fileInfoHtml = `<div class="file-info">📎 File Uploaded: ${safeName} (${safeType})</div>`;
-                             // Add file info below text content if text exists, otherwise just show file info
+                             bubble.classList.add('has-file'); const safeName = escapeHtml(message.fileInfo.name || 'Unknown File'); const safeType = escapeHtml(message.fileInfo.type || 'Unknown Type'); const fileInfoHtml = `<div class="file-info">📎 File Uploaded: ${safeName} (${safeType})</div>`;
                              contentHtml = contentHtml ? contentHtml + fileInfoHtml : fileInfoHtml;
                          }
-                          // Handle cases where user message might be empty but have a file
-                          if (!contentHtml && message.fileInfo) {
-                             contentHtml = `<div class="file-info">📎 File Uploaded: ${escapeHtml(message.fileInfo.name || 'Unknown File')} (${escapeHtml(message.fileInfo.type || 'Unknown Type')})</div>`;
-                          } else if (!contentHtml) {
-                             contentHtml = "[Empty User Message]"; // Fallback
-                          }
-
+                         if (!contentHtml && message.fileInfo) contentHtml = `<div class="file-info">📎 File Uploaded: ${escapeHtml(message.fileInfo.name || 'Unknown File')} (${escapeHtml(message.fileInfo.type || 'Unknown Type')})</div>`;
+                         else if (!contentHtml) contentHtml = "[Empty User Message]";
                          bubble.innerHTML = contentHtml;
-
                      } else if (message.role === 'model') {
                          bubble.classList.add('model-bubble');
                          const messageText = message.parts.map(part => part.text || '').join('');
                          try {
-                             // Use marked.parse for model responses to handle markdown
                              const rawHtml = marked.parse(messageText || "[Empty Model Response]");
                              bubble.innerHTML = rawHtml;
-                             // Add buttons after rendering
-                             requestAnimationFrame(() => { // Ensure DOM is ready
-                                 addCodeActionButtons(bubble);
-                             });
+                             requestAnimationFrame(() => addCodeActionButtons(bubble));
                          } catch (e) {
-                             console.error("Markdown parsing/rendering error in history:", e);
-                             bubble.textContent = messageText || "[Error rendering history response]"; // Fallback
+                             console.error("Markdown rendering error in history:", e);
+                             bubble.textContent = messageText || "[Error rendering history response]";
                          }
                      }
                      ui.chatContainer.appendChild(bubble);
                 });
-
-                // Re-append streaming bubble if it exists (e.g., during load)
                  const streamingBubble = document.querySelector('.model-bubble.streaming');
-                 if (streamingBubble && !ui.chatContainer.contains(streamingBubble)) {
-                    ui.chatContainer.appendChild(streamingBubble);
-                 }
-
-                 // Ensure scroll after history render
+                 if (streamingBubble && !ui.chatContainer.contains(streamingBubble)) ui.chatContainer.appendChild(streamingBubble);
                  scrollToBottom();
              }
 
              function addCodeActionButtons(parentElement) {
                 parentElement.querySelectorAll('pre').forEach(pre => {
-                    // Avoid adding buttons twice
                     if (pre.querySelector('.copy-code-button')) return;
-                    const codeElement = pre.querySelector('code');
-                    // Ensure code element exists before adding buttons
-                    if (!codeElement) {
-                         console.warn("Could not find <code> element inside <pre> for button addition.");
-                         return;
-                     }
-
+                    const codeElement = pre.querySelector('code'); if (!codeElement) { console.warn("No <code> in <pre>"); return; }
                     const copyButton = document.createElement('button');
                     copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
-                    copyButton.className = 'code-action-button copy-code-button';
-                    copyButton.title = 'Copy code to clipboard';
-                    copyButton.setAttribute('aria-label', 'Copy code block');
-
+                    copyButton.className = 'code-action-button copy-code-button'; copyButton.title = 'Copy code'; copyButton.setAttribute('aria-label', 'Copy code block');
                     const downloadButton = document.createElement('button');
                     downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Save`;
-                    downloadButton.className = 'code-action-button download-code-button';
-                    downloadButton.title = 'Download code block as file';
-                    downloadButton.setAttribute('aria-label', 'Download code block');
-
-                    // Append buttons INSIDE the <pre> tag
-                    pre.appendChild(downloadButton);
-                    pre.appendChild(copyButton);
-
-                    // Apply highlighting if not already applied (e.g., after loading history)
-                    if (!codeElement.classList.contains('hljs')) {
-                         try {
-                            hljs.highlightElement(codeElement);
-                         } catch (e) {
-                            console.warn("Highlight.js error on element:", e, codeElement);
-                         }
-                    }
+                    downloadButton.className = 'code-action-button download-code-button'; downloadButton.title = 'Download code'; downloadButton.setAttribute('aria-label', 'Download code block');
+                    pre.appendChild(downloadButton); pre.appendChild(copyButton);
+                    if (!codeElement.classList.contains('hljs')) { try { hljs.highlightElement(codeElement); } catch (e) { console.warn("Highlight.js error on element:", e, codeElement); } }
                 });
              }
 
-            // ... (keep handleCopyCodeClick, handleDownloadCodeClick functions as they are) ...
              function handleCopyCodeClick(button) {
-                 const pre = button.closest('pre');
-                 const code = pre?.querySelector('code');
-                 if (!code) return;
-                 const codeToCopy = code.textContent || '';
+                 const pre = button.closest('pre'); const code = pre?.querySelector('code'); if (!code) return; const codeToCopy = code.textContent || '';
                  navigator.clipboard.writeText(codeToCopy).then(() => {
-                     button.innerHTML = 'Copied!';
-                     button.classList.add('copied');
-                     button.style.pointerEvents = 'none';
-                     setTimeout(() => {
-                         button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
-                         button.classList.remove('copied');
-                         button.style.pointerEvents = 'auto';
-                     }, 2000);
-                 }).catch(err => {
-                     console.error('Failed to copy code: ', err);
-                     button.textContent = 'Error';
-                     button.style.pointerEvents = 'none';
-                     setTimeout(() => {
-                         button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
-                         button.style.pointerEvents = 'auto';
-                     }, 2000);
-                 });
+                     button.innerHTML = 'Copied!'; button.classList.add('copied'); button.style.pointerEvents = 'none';
+                     setTimeout(() => { button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`; button.classList.remove('copied'); button.style.pointerEvents = 'auto'; }, 2000);
+                 }).catch(err => { console.error('Failed to copy: ', err); button.textContent = 'Error'; button.style.pointerEvents = 'none'; setTimeout(() => { button.innerHTML = `<svg>...</svg> Copy`; button.style.pointerEvents = 'auto'; }, 2000); });
              }
 
              function handleDownloadCodeClick(button) {
-                const pre = button.closest('pre');
-                const code = pre?.querySelector('code');
-                if (!code) return;
-
-                const codeContent = code.textContent || '';
-                let language = 'txt';
-                const langClass = Array.from(code.classList).find(cls => cls.startsWith('language-'));
-                if (langClass) {
-                    language = langClass.split('-')[1] || 'txt';
-                    const extMap = {
-                        'javascript': 'js', 'python': 'py', 'html': 'html', 'css': 'css', 'java': 'java',
-                        'csharp': 'cs', 'cpp': 'cpp', 'ruby': 'rb', 'php': 'php', 'swift': 'swift',
-                        'go': 'go', 'rust': 'rs', 'kotlin': 'kt', 'bash': 'sh', 'shell': 'sh',
-                        'sql': 'sql', 'json': 'json', 'yaml': 'yaml', 'markdown': 'md', 'xml': 'xml',
-                        'plaintext': 'txt'
-                     };
-                     language = extMap[language.toLowerCase()] || language;
-                }
-
+                const pre = button.closest('pre'); const code = pre?.querySelector('code'); if (!code) return; const codeContent = code.textContent || ''; let language = 'txt'; const langClass = Array.from(code.classList).find(cls => cls.startsWith('language-'));
+                if (langClass) { language = langClass.split('-')[1] || 'txt'; const extMap = { 'javascript': 'js', 'python': 'py', 'html': 'html', 'css': 'css', 'java': 'java', 'csharp': 'cs', 'cpp': 'cpp', 'ruby': 'rb', 'php': 'php', 'swift': 'swift', 'go': 'go', 'rust': 'rs', 'kotlin': 'kt', 'bash': 'sh', 'shell': 'sh', 'sql': 'sql', 'json': 'json', 'yaml': 'yaml', 'markdown': 'md', 'xml': 'xml', 'plaintext': 'txt' }; language = extMap[language.toLowerCase()] || language; }
                 const filename = `code_block.${language}`;
-                try {
-                    const blob = new Blob([codeContent], { type: 'text/plain;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                } catch (error) {
-                    console.error('Failed to initiate download:', error);
-                    alert('Error preparing file for download.');
-                }
+                try { const blob = new Blob([codeContent], { type: 'text/plain;charset=utf-8' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
+                catch (error) { console.error('Failed download:', error); alert('Error preparing file.'); }
             }
 
-            // ... (keep scrollToBottom function as it is) ...
             function scrollToBottom() {
-                requestAnimationFrame(() => {
-                     setTimeout(() => {
-                        // Check scroll position before scrolling to avoid disrupting user scrolling up
-                        const scrollThreshold = 150; // Pixels from bottom
-                        if (ui.responseArea.scrollHeight - ui.responseArea.scrollTop - ui.responseArea.clientHeight < scrollThreshold) {
-                             ui.responseArea.scrollTop = ui.responseArea.scrollHeight;
-                        }
-                     }, 50); // Small delay helps with rapid streaming updates
-                });
+                requestAnimationFrame(() => { setTimeout(() => { const scrollThreshold = 150; if (ui.responseArea.scrollHeight - ui.responseArea.scrollTop - ui.responseArea.clientHeight < scrollThreshold) ui.responseArea.scrollTop = ui.responseArea.scrollHeight; }, 50); });
             }
 
-
-            // Modify clearAll to reset file inputs as well
             function clearAll() {
                 ui.promptInput.value = '';
                 chatHistory = [];
-                resetFileInput(); // Clear prompt file upload
-                ui.loadChatInput.value = ''; // Clear load chat file input
-                const streamingBubble = document.querySelector('.model-bubble.streaming');
-                 if (streamingBubble) {
-                     streamingBubble.remove();
-                 }
+                resetFileInput();
+                ui.loadChatInput.value = '';
+                const streamingBubble = document.querySelector('.model-bubble.streaming'); if (streamingBubble) streamingBubble.remove();
                 renderChatHistory();
-                showStatus(""); // Clear status message
+                showStatus("");
+                updateTokenCount(); // <<< Update token count on clear
                 ui.promptInput.focus();
-                // Reset config to defaults? Optional. Current keeps user settings.
-                // ui.temperatureInput.value = 0.7;
-                // ui.maxTokensInput.value = 8192;
-                // ui.topPInput.value = 0.95;
-                // ui.topKInput.value = 40;
             }
 
             // --- Initialization ---
             function initialize() {
                 loadApiKey();
-                setupEventListeners(); // Ensure this wires up NEW buttons
+                setupEventListeners();
                 initializeTheme();
                 configureMarked();
                 if (ui.apiKeyInput.value.trim()) {
-                    fetchModels();
+                    fetchModels().then(() => {
+                        // Render potentially loaded history first if using local storage persistence later
+                        renderChatHistory();
+                        // Update token count after models and history are ready
+                        updateTokenCount();
+                    });
                 } else {
                      updateModelDropdown([], "-- Enter API Key to Load Models --");
+                     renderChatHistory(); // Render empty state
+                     updateTokenCount(); // Update count (will show N/A or 0)
                 }
-                renderChatHistory(); // Initial render
+                // Initial render and token count are now handled within the if/else branches
             }
 
             // --- Run ---
