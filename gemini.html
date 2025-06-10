@@ -488,6 +488,27 @@
         }
 
         /* Code blocks in messages */
+        .model-bubble h1, .model-bubble h2, .model-bubble h3 { 
+            margin-top: 0.8em; 
+            margin-bottom: 0.4em; 
+            font-weight: 600; 
+        }
+        .model-bubble h1 { font-size: 1.4em; } 
+        .model-bubble h2 { font-size: 1.2em; } 
+        .model-bubble h3 { font-size: 1.1em; }
+        .model-bubble p { margin-bottom: 0.8em; }
+        .model-bubble ul, .model-bubble ol { 
+            margin-left: 20px; 
+            margin-bottom: 0.8em; 
+        }
+        .model-bubble li { margin-bottom: 0.3em; }
+        .model-bubble blockquote { 
+            border-left: 3px solid var(--primary-color); 
+            padding-left: 12px; 
+            margin: 0.8em 0; 
+            color: var(--secondary-color); 
+            font-style: italic; 
+        }
         .model-bubble pre {
             background-color: var(--code-bg);
             padding: 12px;
@@ -496,6 +517,14 @@
             margin: 8px 0;
             position: relative;
             padding-top: 35px;
+        }
+        .model-bubble pre code {
+            background-color: transparent;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+            color: inherit;
+            white-space: pre;
         }
         .model-bubble code:not(pre code) {
             background-color: var(--code-bg);
@@ -1315,12 +1344,14 @@
                     if (!code) return;
                     
                     const copyBtn = document.createElement('button');
-                    copyBtn.innerHTML = 'Copy';
+                    copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
                     copyBtn.className = 'code-action-button copy-code-button';
+                    copyBtn.title = 'Copy code';
                     
                     const downloadBtn = document.createElement('button');
-                    downloadBtn.innerHTML = 'Save';
+                    downloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Save`;
                     downloadBtn.className = 'code-action-button download-code-button';
+                    downloadBtn.title = 'Download code';
                     
                     pre.appendChild(copyBtn);
                     pre.appendChild(downloadBtn);
@@ -1336,27 +1367,78 @@
                 if (!code) return;
                 
                 navigator.clipboard.writeText(code.textContent || '').then(() => {
-                    button.textContent = 'Copied!';
+                    button.innerHTML = 'Copied!';
                     button.classList.add('copied');
+                    button.style.pointerEvents = 'none';
                     setTimeout(() => {
-                        button.textContent = 'Copy';
+                        button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
                         button.classList.remove('copied');
+                        button.style.pointerEvents = 'auto';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    button.textContent = 'Error';
+                    button.style.pointerEvents = 'none';
+                    setTimeout(() => {
+                        button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy`;
+                        button.style.pointerEvents = 'auto';
                     }, 2000);
                 });
             }
 
             function handleDownloadCodeClick(button) {
-                const code = button.closest('pre')?.querySelector('code');
+                const pre = button.closest('pre');
+                const code = pre?.querySelector('code');
                 if (!code) return;
                 
-                const content = code.textContent || '';
-                const blob = new Blob([content], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'code.txt';
-                link.click();
-                URL.revokeObjectURL(url);
+                const codeContent = code.textContent || '';
+                let language = 'txt';
+                const langClass = Array.from(code.classList).find(cls => cls.startsWith('language-'));
+                
+                if (langClass) {
+                    language = langClass.split('-')[1] || 'txt';
+                    const extMap = {
+                        'javascript': 'js',
+                        'python': 'py',
+                        'html': 'html',
+                        'css': 'css',
+                        'java': 'java',
+                        'csharp': 'cs',
+                        'cpp': 'cpp',
+                        'ruby': 'rb',
+                        'php': 'php',
+                        'swift': 'swift',
+                        'go': 'go',
+                        'rust': 'rs',
+                        'kotlin': 'kt',
+                        'bash': 'sh',
+                        'shell': 'sh',
+                        'sql': 'sql',
+                        'json': 'json',
+                        'yaml': 'yaml',
+                        'markdown': 'md',
+                        'xml': 'xml',
+                        'plaintext': 'txt'
+                    };
+                    language = extMap[language.toLowerCase()] || language;
+                }
+                
+                const filename = `code_block.${language}`;
+                
+                try {
+                    const blob = new Blob([codeContent], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Failed download:', error);
+                    alert('Error preparing file.');
+                }
             }
 
             function scrollToBottom() {
