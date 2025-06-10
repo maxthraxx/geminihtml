@@ -7,7 +7,7 @@ This should work on any operating system with a modern web browser.
 
 Contributions are welcome
 
-# Key features : streaming chat, code blocks that you can copy or download, light and dark themes, chat history, source code highlighting, and file uploads.
+# Key features : streaming chat, code blocks that you can copy or download, light and dark themes, chat history with save/load, source code highlighting, and file uploads.
 
 Go to relases, download gemini.zip, open it, and open gemini.html in a web browser.
 
